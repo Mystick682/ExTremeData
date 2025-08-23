@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Topup - X-TrameData</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+  /* --- PROFESSIONAL DESIGN SYSTEM --- */
+  :root {
+    --color-primary: #2563EB; /* Blue-600 */
+    --color-primary-hover: #1D4ED8; /* Blue-700 */
+    --color-primary-light: #EFF6FF; /* Blue-50 */
+    --color-text-primary: #1E293B; /* Slate-800 */
+    --color-text-secondary: #64748B; /* Slate-500 */
+    --color-border: #E2E8F0; /* Slate-200 */
+    --color-background: #F8FAFC; /* Slate-50 */
+    
+    --shadow-sm: 0 1px 2px 0 rgba(56, 16, 16, 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-interactive: 0 0 0 4px rgb(59 130 246 / 0.25);
+  }
+
+  /* Dark Mode Palette */
+  .dark {
+    --color-primary: #3B82F6; /* Blue-500 */
+    --color-primary-hover: #60A5FA; /* Blue-400 */
+    --color-primary-light: #1F2937; /* Gray-800 */
+    --color-text-primary: #F8FAFC; /* Slate-50 */
+    --color-text-secondary: #94A3B8; /* Slate-400 */
+    --color-border: #334155; /* Slate-700 */
+    --color-background: #0F172A; /* Slate-900 */
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* Navigation Bar */
+  .header-nav {
+    background-color: white;
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+  }
+  .dark .header-nav {
+    background-color: #111827; /* Gray-900 */
+  }
+  
+  /* Section Card */
+  .section-card {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    border-radius: 1.5rem; /* 24px */
+    padding: 1.5rem; /* 24px */
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease-in-out;
+  }
+  .dark .section-card {
+    background-color: var(--color-primary-light);
+  }
+  .section-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  /* Horizontal Scroll for Networks */
+  .horizontal-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .horizontal-scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Network Card */
+  .network-card {
+    flex-shrink: 0;
+    width: 140px;
+    padding: 1rem;
+    border: 2px solid var(--color-border);
+    border-radius: 1rem;
+    transition: all 0.2s ease-in-out;
+  }
+  .network-card.selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    transform: scale(1.05);
+  }
+  .network-logo {
+    width: 36px; height: 36px;
+  }
+
+  /* Data Plan Card - REDESIGNED & SMALLER */
+  .plan-card {
+    border: 2px solid var(--color-border);
+    border-radius: 1rem; /* 16px */
+    padding: 1rem; /* 16px */
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+  }
+  .plan-card.selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    box-shadow: var(--shadow-interactive);
+  }
+  .checkmark-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 99px;
+    width: 20px;
+    height: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .plan-card.selected .checkmark-icon {
+    display: flex;
+  }
+
+  /* Input Field */
+  .elegant-input {
+    background-color: var(--color-background);
+    border: 2px solid var(--color-border);
+    border-radius: 0.75rem; /* 12px */
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease-in-out;
+  }
+  .elegant-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-interactive);
+    outline: none;
+  }
+
+  /* Purchase Button */
+  .purchase-button {
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    box-shadow: var(--shadow-lg);
+  }
+  .purchase-button:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+  }
+  .purchase-button:disabled {
+    background-color: #94A3B8; /* Slate-400 */
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  /* Animations */
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .loading { animation: spin 1s linear infinite; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+<!-- Navigation -->
+<nav class="header-nav sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center space-x-3">
+        <button onclick="history.back()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </button>
+        <h1 class="text-lg font-bold">Data Topup</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="text-right">
+          <div class="text-xs text-slate-500 dark:text-slate-400">Balance</div>
+          <div id="walletBalance" class="font-bold text-lg">₦0.00</div>
+        </div>
+        <div id="userAvatar" class="w-10 h-10 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white dark:border-gray-800">?</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+  
+  <!-- Network Selection -->
+  <section class="section-card">
+    <h2 class="text-xl font-bold mb-4 flex items-center">
+      <div class="w-8 h-8 mr-3 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center">
+        <i data-lucide="wifi" class="w-5 h-5"></i>
+      </div>
+      Select Network
+    </h2>
+    <div class="horizontal-scroll-container space-x-4">
+      <!-- Network Cards Here -->
+    </div>
+  </section>
+
+  <!-- Phone Number & Data Plans -->
+  <div id="detailsSection" class="space-y-6 hidden">
+    <!-- Phone Number Input -->
+    <section class="section-card">
+      <h2 class="text-xl font-bold mb-4 flex items-center">
+        <div class="w-8 h-8 mr-3 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center">
+          <i data-lucide="phone" class="w-5 h-5"></i>
+        </div>
+        Enter Phone Number
+      </h2>
+      <div class="relative">
+        <input type="tel" id="phoneNumber" placeholder="080 1234 5678" class="elegant-input w-full text-lg font-medium" maxlength="11" pattern="[0-9]{11}">
+        <i data-lucide="smartphone" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+      </div>
+    </section>
+
+    <!-- Data Plans -->
+    <section class="section-card">
+      <h2 class="text-xl font-bold mb-4 flex items-center">
+        <div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </div>
+        Choose Data Plan
+      </h2>
+      <div id="dataPlans" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- Plans will be loaded here -->
+      </div>
+    </section>
+  </div>
+  
+  <!-- Purchase Summary & Action -->
+  <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
+    <section class="section-card bg-white dark:bg-slate-800 shadow-lg">
+      <h3 class="text-lg font-bold mb-4">Summary</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between"><span class="text-slate-500">Network</span><span id="summaryNetwork" class="font-semibold">-</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Phone Number</span><span id="summaryPhone" class="font-semibold">-</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Plan</span><span id="summaryPlan" class="font-semibold">-</span></div>
+        <hr class="border-dashed border-slate-200 dark:border-slate-700 my-2">
+        <div class="flex justify-between items-center text-lg"><span class="font-bold">Total</span><span id="summaryAmount" class="font-bold text-2xl text-blue-600 dark:text-blue-400">₦0</span></div>
+      </div>
+    </section>
+    
+    <div class="text-center">
+      <button id="purchaseBtn" class="purchase-button w-full max-w-sm mx-auto" disabled>
+        <span class="flex items-center justify-center space-x-2">
+          <span id="purchaseBtnText">Select a Plan</span>
+          <i data-lucide="arrow-right" class="w-5 h-5" id="purchaseBtnIcon"></i>
+          <i data-lucide="loader" class="loading w-5 h-5 hidden" id="purchaseBtnLoader"></i>
+        </span>
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// --- DARK MODE SYNCHRONIZATION LOGIC ---
+
+// Function to apply dark mode based on localStorage
+function applyDarkMode() {
+  // Read the theme from the key set by the dashboard ('xt_theme')
+  const savedTheme = localStorage.getItem('xt_theme'); 
+  // Apply 'dark' class if the saved theme is exactly 'dark'
+  document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+}
+
+// Listen for theme changes made in other tabs (like the dashboard)
+window.addEventListener('storage', (event) => {
+  // If the changed item is our theme key, re-apply the theme
+  if (event.key === 'xt_theme') {
+    applyDarkMode();
+  }
+});
+
+// Apply the correct theme as soon as the page loads
+applyDarkMode();
+
+// --- END OF DARK MODE LOGIC ---
+
+
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+let supabase = null;
+let isSupabaseConnected = false;
+try {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  isSupabaseConnected = true;
+} catch (error) { console.error('Supabase initialization failed:', error); }
+
+const networks = [
+    { id: 'mtn', name: 'MTN', logo: `<rect width="100" height="100" fill="#FFCC00"/><text x="50" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#000">MTN</text>` },
+    { id: 'airtel', name: 'Airtel', logo: `<rect width="100" height="100" fill="#FF0000"/><text x="50" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#FFF">Airtel</text><text x="50" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#FFF">4G</text>` },
+    { id: 'glo', name: 'Glo', logo: `<rect width="100" height="100" fill="#00A651"/><text x="50" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFF">Glo</text>` },
+    { id: '9mobile', name: '9Mobile', logo: `<rect width="100" height="100" fill="#00A4E4"/><text x="50" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#FFF">9</text><text x="50" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#FFF">mobile</text>` }
+];
+
+const dataPlans = {
+  mtn: [{ size: '1GB', price: 350, validity: '30 days'}, { size: '2GB', price: 700, validity: '30 days'}, { size: '5GB', price: 1750, validity: '30 days'}, { size: '10GB', price: 3500, validity: '30 days'}],
+  airtel: [{ size: '1.5GB', price: 300, validity: '30 days'}, { size: '2GB', price: 600, validity: '30 days'}, { size: '6GB', price: 1500, validity: '30 days'}, { size: '10GB', price: 3000, validity: '30 days'}],
+  glo: [{ size: '1.2GB', price: 320, validity: '30 days'}, { size: '2.5GB', price: 640, validity: '30 days'}, { size: '5.8GB', price: 1600, validity: '30 days'}, { size: '12GB', price: 3200, validity: '30 days'}],
+  '9mobile': [{ size: '1GB', price: 400, validity: '30 days'}, { size: '2GB', price: 800, validity: '30 days'}, { size: '4.5GB', price: 2000, validity: '30 days'}, { size: '11GB', price: 4000, validity: '30 days'}]
+};
+
+class DataPurchaseManager {
+  constructor() {
+    this.userData = null;
+    this.selectedNetwork = null;
+    this.selectedPlan = null;
+    this.phoneNumber = '';
+    this.userBalance = 0;
+    
+    this.loadUserData();
+    this.initializeUI();
+    this.setupEventListeners();
+  }
+
+  loadUserData() {
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) this.userData = JSON.parse(storedData);
+      else {
+        alert("Please sign in to continue");
+        window.location.href = "index.html";
+      }
+    } catch (error) {
+      alert("Session expired. Please sign in again.");
+      window.location.href = "index.html";
+    }
+  }
+
+  async initializeUI() {
+    if (!this.userData) return;
+    const initials = (this.userData.firstName?.charAt(0) || '') + (this.userData.lastName?.charAt(0) || '');
+    document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
+    
+    this.renderNetworkCards();
+    await this.loadWalletBalance();
+    lucide.createIcons();
+  }
+
+  renderNetworkCards() {
+    const container = document.querySelector('.horizontal-scroll-container');
+    container.innerHTML = networks.map(net => `
+      <div class="network-card cursor-pointer text-center space-y-2" data-network="${net.id}">
+        <div class="flex justify-center">
+          <svg class="network-logo rounded-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${net.logo}</svg>
+        </div>
+        <div class="font-semibold text-sm">${net.name}</div>
+      </div>
+    `).join('');
+  }
+
+  async loadWalletBalance() {
+    if (isSupabaseConnected && this.userData?.email) {
+      try {
+        const { data, error } = await supabase.from('user_profiles').select('balance').eq('email', this.userData.email).single();
+        if (error) throw error;
+        if (data) {
+          this.userBalance = parseFloat(data.balance || 0);
+          document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString()}`;
+        }
+      } catch (error) {
+        console.error("Error loading balance:", error);
+        document.getElementById('walletBalance').textContent = 'Error';
+      }
+    }
+  }
+
+  setupEventListeners() {
+    document.querySelector('.horizontal-scroll-container').addEventListener('click', (e) => {
+        const card = e.target.closest('.network-card');
+        if (!card) return;
+        document.querySelectorAll('.network-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        this.selectedNetwork = card.dataset.network;
+        this.selectedPlan = null;
+        document.getElementById('detailsSection').classList.remove('hidden');
+        this.loadDataPlans();
+        this.updateState();
+    });
+
+    document.getElementById('phoneNumber').addEventListener('input', (e) => {
+      this.phoneNumber = e.target.value.replace(/\D/g, '');
+      this.updateState();
+    });
+
+    document.getElementById('purchaseBtn').addEventListener('click', () => this.processPurchase());
+  }
+
+  loadDataPlans() {
+    const plansContainer = document.getElementById('dataPlans');
+    const plans = dataPlans[this.selectedNetwork] || [];
+    plansContainer.innerHTML = plans.map(plan => `
+      <div class="plan-card" data-plan='${JSON.stringify(plan)}'>
+        <div class="checkmark-icon"><i data-lucide="check" class="w-4 h-4"></i></div>
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-bold text-lg">${plan.size}</div>
+            <div class="text-xs text-slate-500">${plan.validity}</div>
+          </div>
+          <div class="font-bold text-lg text-blue-600 dark:text-blue-400">₦${plan.price}</div>
+        </div>
+      </div>
+    `).join('');
+
+    plansContainer.querySelectorAll('.plan-card').forEach(card => {
+      card.addEventListener('click', () => {
+        plansContainer.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        this.selectedPlan = JSON.parse(card.dataset.plan);
+        this.updateState();
+      });
+    });
+    lucide.createIcons();
+  }
+  
+  updateState() {
+    const summarySection = document.getElementById('summarySection');
+    const btn = document.getElementById('purchaseBtn');
+    const btnText = document.getElementById('purchaseBtnText');
+    const isReady = this.selectedNetwork && this.selectedPlan && this.phoneNumber.length === 11;
+    summarySection.classList.toggle('hidden', !isReady);
+
+    if (isReady) {
+        document.getElementById('summaryNetwork').textContent = this.selectedNetwork.toUpperCase();
+        document.getElementById('summaryPhone').textContent = this.phoneNumber;
+        document.getElementById('summaryPlan').textContent = `${this.selectedPlan.size} (${this.selectedPlan.validity})`;
+        document.getElementById('summaryAmount').textContent = `₦${this.selectedPlan.price.toLocaleString()}`;
+        btnText.textContent = `Pay ₦${this.selectedPlan.price.toLocaleString()}`;
+        btn.disabled = false;
+    } else {
+        btn.disabled = true;
+        if (!this.selectedNetwork) btnText.textContent = 'Select a Network';
+        else if (this.phoneNumber.length !== 11) btnText.textContent = 'Enter Phone Number';
+        else btnText.textContent = 'Select a Plan';
+    }
+  }
+
+  resetUI() {
+    document.querySelectorAll('.network-card.selected').forEach(c => c.classList.remove('selected'));
+    document.getElementById('detailsSection').classList.add('hidden');
+    document.getElementById('summarySection').classList.add('hidden');
+    document.getElementById('phoneNumber').value = '';
+    this.selectedNetwork = null;
+    this.selectedPlan = null;
+    this.phoneNumber = '';
+    this.updateState();
+  }
+
+  async processPurchase() {
+    if (this.selectedPlan.price > this.userBalance) {
+      return this.showNotification(`Insufficient balance. You need ₦${this.selectedPlan.price.toLocaleString()}`, 'error');
+    }
+
+    const btn = document.getElementById('purchaseBtn');
+    const btnText = document.getElementById('purchaseBtnText');
+    const btnIcon = document.getElementById('purchaseBtnIcon');
+    const btnLoader = document.getElementById('purchaseBtnLoader');
+    
+    btn.disabled = true;
+    btnText.textContent = 'Processing...';
+    btnIcon.classList.add('hidden');
+    btnLoader.classList.remove('hidden');
+
+    try {
+      if (isSupabaseConnected) {
+        const newBalance = this.userBalance - this.selectedPlan.price;
+        const { error: updateError } = await supabase.from('user_profiles').update({ balance: newBalance, updated_at: new Date().toISOString() }).eq('email', this.userData.email);
+        if (updateError) throw new Error('Failed to update balance');
+
+        await supabase.from('transactions').insert([{
+          user_email: this.userData.email, type: 'purchase', amount: this.selectedPlan.price, status: 'completed',
+          reference: `DATA_${Date.now()}`, payment_method: 'wallet',
+          description: `${this.selectedPlan.size} ${this.selectedNetwork.toUpperCase()} data to ${this.phoneNumber}`
+        }]);
+
+        this.showNotification(`✅ Success! ${this.selectedPlan.size} data sent to ${this.phoneNumber}`, 'success');
+        this.userBalance = newBalance;
+        document.getElementById('walletBalance').textContent = `₦${newBalance.toLocaleString()}`;
+        this.resetUI();
+
+      } else {
+        this.showNotification(`✅ Demo Mode: Purchase successful!`, 'success');
+        this.resetUI();
+      }
+    } catch (error) {
+      this.showNotification(`❌ Purchase failed: ${error.message}`, 'error');
+      btn.disabled = false;
+      btnText.textContent = `Pay ₦${this.selectedPlan.price.toLocaleString()}`;
+      btnIcon.classList.remove('hidden');
+      btnLoader.classList.add('hidden');
+    }
+  }
+
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+    notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-2xl transform translate-x-full transition-transform duration-300 max-w-sm text-white ${colors[type]}`;
+    notification.innerHTML = `<div class="flex items-start space-x-3"><div class="flex-shrink-0 mt-0.5"><i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info'}" class="w-5 h-5"></i></div><div class="flex-1"><p class="text-sm font-semibold">${message}</p></div><button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 hover:bg-white/20 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button></div>`;
+    
+    document.body.appendChild(notification);
+    lucide.createIcons();
+    
+    setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new DataPurchaseManager();
+});
+</script>
+</body>
+</html>
