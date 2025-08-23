@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root{
       --bg:#0f1724;
@@ -35,9 +39,12 @@
     }
     
     .actions{display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap}
-    .btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:12px 16px;border-radius:11px;color:#05232a;border:none;font-weight:700;cursor:pointer;width:100%}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:12px 16px;border-radius:11px;color:#05232a;border:none;font-weight:700;cursor:pointer;width:100%; display:flex; align-items:center; justify-content:center;}
     .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600;width:100%}
-    .error{color:#ff8181;font-size:13px}
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+    
+    .error{color:#ff8181;font-size:13px; min-height: 1em;}
+    .success{color:var(--accent);font-size:13px; min-height: 1em;}
     .hint{font-size:12px;color:var(--muted)}
     .forgot{font-size:12px;color:var(--accent-2);cursor:pointer;text-align:right}
     
@@ -46,7 +53,22 @@
     
     .modal{background: var(--card); padding:26px; border-radius:14px; min-width:320px; text-align:center; display:flex; flex-direction:column; gap:14px; transform:scale(0.8); transition:transform 0.3s ease;}
     .overlay.show .modal{transform:scale(1);}
+
+    .loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-radius:50%;border-top-color:#fff;animation:spin 1s ease-in-out infinite;margin-left:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
     
+    .input-wrapper { position: relative; }
+    .pw-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 0; display: grid;
+      place-items: center; color: var(--muted);
+    }
+    input[type="password"] { padding-right: 40px; }
+    .pw-toggle svg { width: 18px; height: 18px; }
+    .pw-toggle .eye-off { display: none; }
+    .pw-toggle.visible .eye { display: none; }
+    .pw-toggle.visible .eye-off { display: block; }
+
     @media (max-width:768px){
       .card{width:100%}
       .form-wrap{padding:20px}
@@ -65,22 +87,31 @@
 
         <form id="loginForm" novalidate>
           <div>
-            <label for="loginEmail">Email or Phone</label>
-            <input id="loginEmail" name="loginEmail" type="text" required>
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" name="loginEmail" type="email" required autocomplete="email">
             <div class="error" id="err-loginEmail" aria-live="polite"></div>
           </div>
 
           <div>
             <label for="loginPassword">Password</label>
-            <input id="loginPassword" name="loginPassword" type="password" required>
+            <div class="input-wrapper">
+              <input id="loginPassword" name="loginPassword" type="password" required autocomplete="current-password">
+              <button type="button" class="pw-toggle" id="togglePassword" aria-label="Show password">
+                <svg class="eye" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg class="eye-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" x2="22" y1="2" y2="22"></line></svg>
+              </button>
+            </div>
             <div class="error" id="err-loginPassword" aria-live="polite"></div>
           </div>
 
           <div class="forgot" id="forgotBtn">Forgot Password?</div>
 
           <div class="actions">
-            <button class="btn" type="submit">Sign In</button>
-            <button class="btn ghost" type="button" id="demoLoginBtn">Demo Account</button>
+            <button class="btn" type="submit" id="submitBtn">
+              <span>Sign In</span>
+              <span class="loading" id="loadingSpinner" style="display:none"></span>
+            </button>
+            <button class="btn ghost" type="button" id="demoLoginBtn">Use Demo Account</button>
           </div>
 
           <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:13px">
@@ -98,65 +129,158 @@
       <p class="hint">Enter your email to receive reset instructions.</p>
       <input type="email" id="resetEmail" placeholder="you@example.com">
       <div class="error" id="err-resetEmail" aria-live="polite"></div>
-      <button class="btn" id="sendReset">Send Reset Link</button>
+      <div class="success" id="success-resetEmail" aria-live="polite"></div>
+      <button class="btn" id="sendReset">
+        <span>Send Reset Link</span>
+        <span class="loading" id="resetLoadingSpinner" style="display:none"></span>
+      </button>
       <button class="btn ghost" id="closeForgot">Cancel</button>
     </div>
   </div>
 
- <script>
+<script>
+// --- SUPABASE SETUP (Use same credentials as your registration page) ---
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const loadingSpinner = document.getElementById('loadingSpinner');
   const demoLoginBtn = document.getElementById('demoLoginBtn');
+
+  // --- Secure login with Supabase ---
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    // Basic validation
+    let ok = true;
+    if(!email){ showError('err-loginEmail','Email is required'); ok=false;} else showError('err-loginEmail','');
+    if(!password){ showError('err-loginPassword','Password is required'); ok=false;} else showError('err-loginPassword','');
+    if(!ok) return;
+
+    // Set loading state
+    submitBtn.disabled = true;
+    loadingSpinner.style.display = 'inline-block';
+    
+    try {
+      // Step 1: Sign in the user
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (authError) throw authError; // If login fails, throw error to catch block
+
+      // Step 2: Fetch the user's profile from your 'user_profiles' table
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name, plan')
+        .eq('id', authData.user.id)
+        .single();
+      
+      if (profileError) throw profileError;
+
+      // Step 3: Store the necessary user data in localStorage for the dashboard
+      const userData = {
+        email: authData.user.email,
+        firstName: profileData.first_name,
+        lastName: profileData.last_name,
+        plan: profileData.plan
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
+
+      // Step 4: Redirect to the dashboard
+      window.location.href = "data.html";
+
+    } catch (error) {
+      console.error('Login Error:', error);
+      showError('err-loginPassword', error.message || 'An unexpected error occurred.');
+    } finally {
+      // Reset loading state
+      submitBtn.disabled = false;
+      loadingSpinner.style.display = 'none';
+    }
+  });
+
+  // --- Password visibility toggle ---
+  setupPasswordToggle('loginPassword', 'togglePassword');
+  
+  // --- Demo login ---
+  demoLoginBtn.addEventListener('click', () => {
+    // Store a complete demo user object, similar to a real login
+    const demoUserData = {
+      email: "demo@example.com",
+      firstName: "Demo",
+      lastName: "User",
+      plan: "starter"
+    };
+    localStorage.setItem("userData", JSON.stringify(demoUserData));
+    window.location.href = 'data.html';
+  });
+
+  // --- Forgot password modal logic ---
   const forgotBtn = document.getElementById('forgotBtn');
   const forgotOverlay = document.getElementById('forgotOverlay');
   const closeForgot = document.getElementById('closeForgot');
   const sendReset = document.getElementById('sendReset');
+  const resetLoading = document.getElementById('resetLoadingSpinner');
 
-  function showError(id, msg) {
-    document.getElementById(id).textContent = msg || '';
-  }
+  forgotBtn.addEventListener('click', () => forgotOverlay.classList.add('show'));
+  closeForgot.addEventListener('click', () => forgotOverlay.classList.remove('show'));
+  
+  sendReset.addEventListener('click', async () => {
+    const email = document.getElementById('resetEmail').value.trim();
+    if(!email) { showError('err-resetEmail','Email is required'); return; }
+    
+    showError('err-resetEmail','');
+    showSuccess('success-resetEmail','');
+    sendReset.disabled = true;
+    resetLoading.style.display = 'inline-block';
 
-  // --- Regular login (frontend only) ---
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value.trim();
-    const pw = document.getElementById('loginPassword').value;
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        // Optional: Redirect user to a page to set a new password
+        // redirectTo: 'https://example.com/update-password',
+      });
+      if (error) throw error;
+      
+      showSuccess('success-resetEmail', 'Password reset link sent to your email!');
 
-    let ok = true;
-    if(!email){ showError('err-loginEmail','Required'); ok=false;} else showError('err-loginEmail','');
-    if(!pw){ showError('err-loginPassword','Required'); ok=false;} else showError('err-loginPassword','');
-
-    if(ok){
-      // Get stored signup credentials
-      const storedEmail = localStorage.getItem("signupEmail");
-      const storedPassword = localStorage.getItem("signupPassword");
-      const storedName = localStorage.getItem("signupName");
-
-      // Check login
-      if(email === storedEmail && pw === storedPassword){
-        localStorage.setItem("username", storedName); // Save for dashboard
-        window.location.href = "data.html";
-      } else {
-        alert("Invalid email or password.");
-      }
+    } catch(error) {
+      console.error('Password Reset Error:', error);
+      showError('err-resetEmail', error.message);
+    } finally {
+      sendReset.disabled = false;
+      resetLoading.style.display = 'none';
     }
   });
 
-  // --- Demo login button ---
-  demoLoginBtn.addEventListener('click', () => {
-    localStorage.setItem("username", "Demo User");
-    window.location.href = 'data.html';
-  });
+  // --- Helper Functions ---
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = msg || '';
+  }
+  function showSuccess(id, msg) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = msg || '';
+  }
+  function setupPasswordToggle(inputId, buttonId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleButton = document.getElementById(buttonId);
+    if (!passwordInput || !toggleButton) return;
 
-  // --- Forgot password modal ---
-  forgotBtn.addEventListener('click', () => forgotOverlay.classList.add('show'));
-  closeForgot.addEventListener('click', () => forgotOverlay.classList.remove('show'));
-  sendReset.addEventListener('click', () => {
-    const email = document.getElementById('resetEmail').value.trim();
-    if(!email){ showError('err-resetEmail','Email required'); return; }
-    showError('err-resetEmail','');
-    alert(`Password reset link sent to ${email} (demo placeholder)`);
-    forgotOverlay.classList.remove('show');
-  });
+    toggleButton.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      toggleButton.classList.toggle('visible');
+    });
+  }
+});
 </script>
 
 </body>
