@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Data - ExTremeData</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f9ff;
+  }
+
+  /* Sidebar - desktop */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100%;
+    background: #f5f5f5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .sidebar .user-header {
+    background: white;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .sidebar .username {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .sidebar .power-icon {
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+  }
+
+  .sidebar .menu-section {
+    margin-bottom: 30px;
+    padding: 0 20px;
+  }
+
+  .sidebar .section-title {
+    font-size: 14px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+  }
+
+  .sidebar .menu-item:hover {
+    background: #e8e8e8;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .sidebar .menu-item:last-child {
+    border-bottom: none;
+  }
+
+  .sidebar .menu-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.7;
+  }
+
+  .sidebar .menu-icon::before {
+    font-size: 16px;
+  }
+
+  /* Main content */
+  .main {
+    margin-left: 280px;
+    padding: 20px;
+  }
+
+  /* Mobile navbar */
+  .mobile-navbar {
+    display: none;
+    background: #004aad;
+    color: white;
+    padding: 10px 20px;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+  }
+
+  .mobile-navbar span.brand {
+    margin-left: 10px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  /* Hamburger */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    width: 25px;
+    height: 20px;
+    justify-content: space-between;
+  }
+
+  .hamburger span {
+    width: 100%;
+    height: 2.5px;
+    background: white;
+    margin: 1px 0;
+  }
+
+  .mobile-links {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100%;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .mobile-links.show {
+    left: 0;
+  }
+
+  /* User header */
+  .user-header {
+    background: white;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .username {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .power-icon {
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+  }
+
+  /* Menu sections */
+  .menu-section {
+    margin-bottom: 30px;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+  }
+
+  .menu-item:hover {
+    background: #e8e8e8;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .menu-item:last-child {
+    border-bottom: none;
+  }
+
+  .menu-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.7;
+  }
+
+  /* Icons using CSS shapes and symbols */
+  .icon-dashboard::before { content: "📊"; }
+  .icon-history::before { content: "📋"; }
+  .icon-wallet::before { content: "💰"; }
+  .icon-cash::before { content: "💵"; }
+  .icon-withdraw::before { content: "🏦"; }
+  .icon-airtime::before { content: "📱"; }
+  .icon-data::before { content: "📶"; }
+  .icon-bills::before { content: "💳"; }
+  .icon-settings::before { content: "⚙"; }
+  .icon-logout::before { content: "🚪"; }
+
+  .menu-icon::before {
+    font-size: 16px;
+  }
+
+  /* Overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 900;
+  }
+
+  /* Buy Data container */
+  .container {
+    max-width: 400px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+    text-align: center;
+    color: #004aad;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    color: #333;
+    margin-top: 10px;
+    display: block;
+  }
+
+  .networks {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+  }
+
+  .networks img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .networks img.active {
+    border-color: #004aad;
+    background: #e6f0ff;
+  }
+
+  .recent {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+  }
+
+  .recent .num {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    background: #f0f4fa;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .save {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .save input {
+    width: auto;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #004aad;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    background: #003380;
+  }
+
+  /* Responsive */
+  @media(max-width: 768px){
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .mobile-navbar { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Paystack Inline JS -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<!-- Desktop sidebar -->
+<div class="sidebar">
+  <div class="user-header">
+    <span class="username">Legitdata</span>
+    <span class="power-icon">⏻</span>
+  </div>
+
+  <div class="menu-section">
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-dashboard"></span>
+      Dashboard
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-history"></span>
+      Transaction History
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="section-title">Main</div>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-wallet"></span>
+      Fund Wallet
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-cash"></span>
+      Airtime To Cash
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-withdraw"></span>
+      Withdraw
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="section-title">Services</div>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-airtime"></span>
+      Airtime Topup
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-data"></span>
+      Data Topup
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-bills"></span>
+      Pay Bills
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="section-title">Settings</div>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-settings"></span>
+      Account Settings
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-logout"></span>
+      Logout
+    </a>
+  </div>
+</div>
+
+<!-- Mobile navbar -->
+<div class="mobile-navbar">
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <span class="brand">ExTremeData</span>
+</div>
+
+<!-- Mobile side menu -->
+<div class="mobile-links" id="mobileLinks">
+  <div class="user-header">
+    <span class="username">Legitdata</span>
+    <span class="power-icon">⏻</span>
+  </div>
+
+  <div class="menu-section">
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-dashboard"></span>
+      Dashboard
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-history"></span>
+      Transaction History
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="section-title">Main</div>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-wallet"></span>
+      Fund Wallet
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-cash"></span>
+      Airtime To Cash
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-withdraw"></span>
+      Withdraw
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="section-title">Services</div>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-airtime"></span>
+      Airtime Topup
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-data"></span>
+      Data Topup
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-bills"></span>
+      Pay Bills
+    </a>
+  </div>
+
+  <div class="menu-section">
+    <div class="section-title">Settings</div>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-settings"></span>
+      Account Settings
+    </a>
+    <a href="#" class="menu-item">
+      <span class="menu-icon icon-logout"></span>
+      Logout
+    </a>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Main content -->
+<div class="main">
+  <div class="container">
+    <h2>Buy <span style="color:#004aad;">Data</span></h2>
+
+    <label>Network:</label>
+    <div class="networks">
+      <img src="assets/mt.png" alt="MTN" onclick="selectNetwork(this)">
+      <img src="assets/air.png" alt="Airtel" onclick="selectNetwork(this)">
+      <img src="assets/glo.jpg" alt="Glo" onclick="selectNetwork(this)">
+      <img src="assets/eti.jpg" alt="9mobile" onclick="selectNetwork(this)">
+    </div>
+
+    <label>Recently Used:</label>
+    <div class="recent">
+      <div class="num">My Num</div>
+      <div class="num">070508</div>
+      <div class="num">091612</div>
+      <div class="num">081699</div>
+    </div>
+
+    <label>Phone Number:</label>
+    <input type="text" id="phoneNumber" placeholder="Enter Phone Number">
+
+    <label>Data Plan:</label>
+    <select id="dataPlan">
+      <option>- Choose Data Plan -</option>
+    </select>
+
+    <div class="save">
+      <input type="checkbox" id="save">
+      <label for="save">Save Beneficiary</label>
+    </div>
+
+    <button onclick="initiatePayment()">Continue</button>
+  </div>
+</div>
+
+<script>
+  // Data plans with pricing
+  const dataPlans = {
+    MTN: [
+      {name: "MTN 1GB - ₦300", price: 300, data: "1GB"},
+      {name: "MTN 2GB - ₦600", price: 600, data: "2GB"},
+      {name: "MTN 5GB - ₦1500", price: 1500, data: "5GB"}
+    ],
+    Airtel: [
+      {name: "Airtel 1GB - ₦250", price: 250, data: "1GB"},
+      {name: "Airtel 2GB - ₦500", price: 500, data: "2GB"},
+      {name: "Airtel 5GB - ₦1300", price: 1300, data: "5GB"}
+    ],
+    Glo: [
+      {name: "Glo 1GB - ₦200", price: 200, data: "1GB"},
+      {name: "Glo 2GB - ₦450", price: 450, data: "2GB"},
+      {name: "Glo 5GB - ₦1200", price: 1200, data: "5GB"}
+    ],
+    "9mobile": [
+      {name: "9mobile 1GB - ₦280", price: 280, data: "1GB"},
+      {name: "9mobile 2GB - ₦550", price: 550, data: "2GB"},
+      {name: "9mobile 5GB - ₦1400", price: 1400, data: "5GB"}
+    ]
+  };
+
+  let selectedNetwork = '';
+  let selectedPlan = null;
+
+  // Paystack Configuration
+  const PAYSTACK_PUBLIC_KEY = 'pk_test_your_public_key_here'; // Replace with your actual public key
+
+  function selectNetwork(el) {
+    document.querySelectorAll('.networks img').forEach(img => img.classList.remove('active'));
+    el.classList.add('active');
+    selectedNetwork = el.alt;
+
+    const dropdown = document.getElementById('dataPlan');
+    dropdown.innerHTML = '<option value="">- Choose Data Plan -</option>';
+    
+    dataPlans[selectedNetwork].forEach((plan, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = plan.name;
+      dropdown.appendChild(option);
+    });
+  }
+
+  // Handle data plan selection
+  document.getElementById('dataPlan').addEventListener('change', function() {
+    const planIndex = this.value;
+    if (planIndex && selectedNetwork) {
+      selectedPlan = dataPlans[selectedNetwork][planIndex];
+    } else {
+      selectedPlan = null;
+    }
+  });
+
+  function validateForm() {
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    
+    // Check if network is selected
+    if (!selectedNetwork) {
+      alert('Please select a network provider');
+      return false;
+    }
+    
+    // Check if phone number is entered
+    if (!phoneNumber) {
+      alert('Please enter a phone number');
+      return false;
+    }
+    
+    // Check if phone number is valid (basic validation)
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
+      alert('Please enter a valid phone number (10-11 digits)');
+      return false;
+    }
+    
+    // Check if data plan is selected
+    if (!selectedPlan) {
+      alert('Please select a data plan');
+      return false;
+    }
+    
+    return true;
+  }
+
+  function initiatePayment() {
+    if (!validateForm()) {
+      return;
+    }
+    
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    
+    // Generate a unique reference
+    const reference = 'data_' + Date.now();
+    
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: 'customer@example.com', // You should collect this or use a default
+      amount: selectedPlan.price * 100, // Paystack expects amount in kobo
+      currency: 'NGN',
+      reference: reference,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Service Type",
+            variable_name: "service_type",
+            value: "Data Purchase"
+          },
+          {
+            display_name: "Network Provider",
+            variable_name: "network",
+            value: selectedNetwork
+          },
+          {
+            display_name: "Phone Number",
+            variable_name: "phone_number",
+            value: phoneNumber
+          },
+          {
+            display_name: "Data Plan",
+            variable_name: "data_plan",
+            value: selectedPlan.name
+          },
+          {
+            display_name: "Data Amount",
+            variable_name: "data_amount",
+            value: selectedPlan.data
+          },
+          {
+            display_name: "Price",
+            variable_name: "price",
+            value: selectedPlan.price
+          }
+        ]
+      },
+      callback: function(response) {
+        // Payment successful
+        alert('Payment successful! Reference: ' + response.reference);
+        
+        // Here you would typically:
+        // 1. Send the payment details to your backend
+        // 2. Process the data purchase
+        // 3. Redirect to a success page
+        
+        console.log('Payment response:', response);
+        
+        // Example: redirect to success page
+        // window.location.href = '/payment-success.html?ref=' + response.reference;
+        
+        // For now, just reset the form
+        resetForm();
+      },
+      onClose: function() {
+        alert('Payment cancelled');
+      }
+    });
+    
+    handler.openIframe();
+  }
+  
+  function resetForm() {
+    document.getElementById('phoneNumber').value = '';
+    document.getElementById('dataPlan').selectedIndex = 0;
+    document.querySelectorAll('.networks img').forEach(img => img.classList.remove('active'));
+    document.getElementById('save').checked = false;
+    selectedNetwork = '';
+    selectedPlan = null;
+  }
+
+  // Hamburger toggle for side menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileLinks = document.getElementById('mobileLinks');
+  const overlay = document.getElementById('overlay');
+
+  function toggleMenu() {
+    mobileLinks.classList.toggle('show');
+    overlay.style.display = mobileLinks.classList.contains('show') ? 'block' : 'none';
+  }
+
+  hamburger.addEventListener('click', toggleMenu);
+  overlay.addEventListener('click', toggleMenu);
+</script>
+
+</body>
+</html>

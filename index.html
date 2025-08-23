@@ -1,0 +1,456 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ExTremeData — Register</title>
+  <meta name="description" content="Register for X-TrameData" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa7bf;
+      --accent:#6ee7b7;
+      --accent-2:#7c5cff;
+      --glass: rgba(255,255,255,0.04);
+      --radius:14px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#061028 0%, #071226 60%);color:#e6eef8}
+    .container{min-height:100vh;display:grid;place-items:center;padding:36px}
+    .card{width:980px;max-width:100%;display:grid;grid-template-columns:420px 1fr;border-radius:var(--radius);overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 30px rgba(2,6,23,0.7)}
+    .brand{padding:40px 36px;background:linear-gradient(180deg, rgba(124,92,255,0.12), rgba(110,231,183,0.06));display:flex;flex-direction:column;gap:18px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo-mark{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:grid;place-items:center;font-weight:800;color:#06203a}
+    .logo h1{font-size:18px;margin:0}
+    .logo p{margin:0;color:var(--muted);font-size:13px}
+    .left-desc{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.45}
+
+    .form-wrap{padding:36px 44px;display:flex;flex-direction:column;gap:18px}
+    h2{margin:6px 0 0 0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    form{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:8px}
+    .full{grid-column:1 / -1}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"],input[type="email"],input[type="password"],input[type="tel"],select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:14px}
+    .row{display:flex;gap:12px}
+    .small{font-size:12px;color:var(--muted)}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:12px 16px;border-radius:11px;color:#05232a;border:none;font-weight:700;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+
+    .hint{font-size:12px;color:var(--muted)}
+    .terms{display:flex;gap:10px;align-items:center}
+    .error{color:#ff8181;font-size:13px}
+    .success{color:var(--accent);font-size:13px}
+
+    .meter{height:6px;border-radius:6px;background:rgba(255,255,255,0.04);overflow:hidden;margin-top:4px}
+    .meter > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ff6b6b,#ffd86b);transition:width .25s ease}
+
+    .overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(1,6,14,0.6);z-index:40}
+    .modal{background:var(--card);padding:26px;border-radius:14px;min-width:320px;text-align:center}
+
+    .loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-radius:50%;border-top-color:#fff;animation:spin 1s ease-in-out infinite;margin-left:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media (max-width:768px){
+      .card{grid-template-columns:1fr;width:100%}
+      .brand{text-align:center;padding:20px}
+      .form-wrap{padding:20px}
+      form{grid-template-columns:1fr}
+      input,select,button{font-size:16px;padding:14px}
+      h2{font-size:22px}
+      .meter{height:6px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" role="region" aria-label="Registration card">
+      <aside class="brand">
+        <div class="logo">
+          <div class="logo-mark">XD</div>
+          <div>
+            <h1>ExTremeData</h1>
+            <p>Data analytics & insights</p>
+          </div>
+        </div>
+        <p class="left-desc">Create an account to access dashboards, export reports, and integrate with our API. Secure, fast, and built for teams.</p>
+        <div style="margin-top:auto">
+          <p class="small">Already have an account?</p>
+          <a class="btn ghost" href="signin.html">Sign in</a>
+        </div>
+      </aside>
+      <main class="form-wrap">
+        <div>
+          <h2>Create your account</h2>
+          <p class="lead">Start your 14-day free trial. No credit card required.</p>
+        </div>
+        
+        <!-- Setup Instructions -->
+        <div id="setupInstructions" style="background:rgba(255,193,7,0.1);padding:16px;border-radius:10px;border-left:4px solid #ffc107;margin-bottom:20px">
+          <h3 style="margin:0 0 8px 0;color:#ffc107;font-size:14px">⚠ Setup Required</h3>
+          <p style="margin:0;font-size:13px;color:var(--muted)">
+            To use this registration form, you need to:
+            <br>1. Create a free <a href="https://supabase.com" target="_blank" style="color:var(--accent-2)">Supabase account</a>
+            <br>2. Create a new project
+            <br>3. Replace YOUR_SUPABASE_URL and YOUR_SUPABASE_ANON_KEY in the script below
+            <br>4. Set up your database table (see instructions in console)
+          </p>
+        </div>
+
+        <form id="registerForm" novalidate>
+          <div>
+            <label for="firstName">First name</label>
+            <input id="firstName" name="firstName" type="text" autocomplete="given-name" required>
+            <div class="error" id="err-firstName" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="lastName">Last name</label>
+            <input id="lastName" name="lastName" type="text" autocomplete="family-name" required>
+            <div class="error" id="err-lastName" aria-live="polite"></div>
+          </div>
+          <div class="full">
+            <label for="email">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+            <div class="error" id="err-email" aria-live="polite"></div>
+            <div class="success" id="success-email" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+2348012345678" required>
+            <div class="error" id="err-phone" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="company">Company / Organization</label>
+            <input id="company" name="company" type="text" autocomplete="organization">
+          </div>
+          <div>
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required aria-describedby="pwhelp">
+            <div class="meter" aria-hidden="true"><i id="pwMeter"></i></div>
+            <div id="pwhelp" class="hint">Minimum 8 characters, mix of letters & numbers.</div>
+            <div class="error" id="err-password" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="confirm">Confirm password</label>
+            <input id="confirm" name="confirm" type="password" required>
+            <div class="error" id="err-confirm" aria-live="polite"></div>
+          </div>
+          <div class="full">
+            <label for="plan">Select plan</label>
+            <select id="plan" name="plan" aria-label="Select plan">
+              <option value="starter">Starter — Free</option>
+              <option value="pro">Pro — ₦5,000 / mo</option>
+              <option value="business">Business — ₦25,000 / mo</option>
+            </select>
+          </div>
+          <div class="full terms">
+            <input id="terms" type="checkbox" required>
+            <label for="terms" class="small">I agree to the <a href="/terms" style="color:var(--accent-2)">Terms</a> and <a href="/privacy" style="color:var(--accent-2)">Privacy Policy</a>.</label>
+            <div class="error" id="err-terms" aria-live="polite"></div>
+          </div>
+          <div class="full actions">
+            <button class="btn" type="button" id="submitBtn">
+              Create account
+              <span class="loading" id="loadingSpinner" style="display:none"></span>
+            </button>
+            <button class="btn ghost" type="button" id="demoBtn">Use demo account</button>
+            <div style="margin-left:auto;color:var(--muted);font-size:13px">By continuing you agree to our policies.</div>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+  
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <h3>Welcome to ExTremeData 🎉</h3>
+      <p class="hint" id="modalMessage">Your account was created successfully! Please check your email to verify your account before signing in.</p>
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
+        <a class="btn" id="goDash" href="data.html">Go to dashboard</a>
+        <button class="btn ghost" id="closeModal">Close</button>
+      </div>
+    </div>
+  </div>  
+  
+<script>
+// 🔥 REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS 🔥
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co'  // e.g., 'https://xyzcompany.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw'  // Your anon/public key
+
+// Initialize Supabase client
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 ExTremeData Registration with Supabase');
+  
+  // Show setup instructions in console
+  if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+    console.log(`
+📋 SETUP INSTRUCTIONS:
+
+1. Go to https://supabase.com and create a free account
+2. Create a new project
+3. Go to Settings > API and copy:
+   - Project URL (replace YOUR_SUPABASE_URL)
+   - anon/public key (replace YOUR_SUPABASE_ANON_KEY)
+
+4. In your Supabase project, go to SQL Editor and run this query to create the user_profiles table:
+
+CREATE TABLE public.user_profiles (
+  id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
+  first_name text,
+  last_name text,
+  phone text,
+  company text,
+  plan text DEFAULT 'starter',
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Set up Row Level Security (RLS)
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can view and edit their own profile
+CREATE POLICY "Users can view own profile" ON public.user_profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert own profile" ON public.user_profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON public.user_profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+5. Optional: Go to Authentication > Settings and customize your email templates
+    `);
+  }
+
+  const overlay = document.getElementById('overlay');
+  const closeModal = document.getElementById('closeModal');
+  const demoBtn = document.getElementById('demoBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+  const setupInstructions = document.getElementById('setupInstructions');
+
+  // Hide setup instructions if Supabase is configured
+  if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    setupInstructions.style.display = 'none';
+  }
+
+  // Create Account Button Click Handler
+  submitBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    console.log("🔥 Create Account Button Clicked");
+
+    // Check if Supabase is configured
+    if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+      showError('err-email', 'Please configure Supabase credentials first (check console for instructions)');
+      return;
+    }
+
+    // Run validation
+    if (!validate()) {
+      console.log("❌ Validation failed");
+      return;
+    }
+
+    // Show loading state
+    submitBtn.disabled = true;
+    loadingSpinner.style.display = 'inline-block';
+    clearAllErrors();
+
+    console.log("✅ Validation passed! Creating account with Supabase...");
+    
+    const formData = {
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      company: document.getElementById('company').value.trim(),
+      plan: document.getElementById('plan').value
+    };
+
+    try {
+      // Step 1: Sign up the user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName
+          }
+        }
+      });
+
+      if (authError) {
+        console.log("❌ Authentication Error:", authError);
+        
+        // Handle specific error types
+        if (authError.message.includes('already registered')) {
+          showError('err-email', 'This email is already registered. Try signing in instead.');
+        } else if (authError.message.includes('password')) {
+          showError('err-password', authError.message);
+        } else {
+          showError('err-email', authError.message);
+        }
+        return;
+      }
+
+      console.log("✅ User created successfully:", authData);
+
+      // Step 2: If user is created, save additional profile data
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert([
+            {
+              id: authData.user.id,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              phone: formData.phone,
+              company: formData.company,
+              plan: formData.plan
+            }
+          ]);
+
+        if (profileError) {
+          console.log("⚠ Profile creation error (user still created):", profileError);
+        } else {
+          console.log("✅ User profile created successfully");
+        }
+
+        // Store user data in localStorage for quick access
+        const userData = {
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          plan: formData.plan
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
+
+        // Show success modal
+        document.getElementById('modalMessage').textContent = 
+          authData.user.email_confirmed_at ? 
+          'Your account was created successfully! You can now access your dashboard.' :
+          'Your account was created successfully! Please check your email to verify your account before signing in.';
+        
+        overlay.style.display = 'grid';
+        console.log("🎉 Registration completed successfully!");
+      }
+
+    } catch (error) {
+      console.log("❌ Network/Connection Error:", error);
+      showError('err-email', 'Unable to connect to authentication service. Please try again.');
+    } finally {
+      // Reset loading state
+      submitBtn.disabled = false;
+      loadingSpinner.style.display = 'none';
+    }
+  });
+
+  // Helper Functions
+  function showError(id, msg) { 
+    const el = document.getElementById(id); 
+    if (el) el.textContent = msg || ''; 
+  }
+
+  function clearAllErrors() {
+    document.querySelectorAll('.error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.success').forEach(el => el.textContent = '');
+  }
+
+  function validate() { 
+    let ok = true; 
+    clearAllErrors();
+    
+    const fn = document.getElementById('firstName').value.trim(); 
+    const ln = document.getElementById('lastName').value.trim(); 
+    const email = document.getElementById('email').value.trim(); 
+    const phone = document.getElementById('phone').value.trim(); 
+    const pw = document.getElementById('password').value; 
+    const conf = document.getElementById('confirm').value; 
+    const terms = document.getElementById('terms').checked; 
+    
+    console.log("🔍 Validating password:", pw);
+    
+    // Basic field validation
+    if (!fn) { showError('err-firstName', 'First name is required'); ok = false; } 
+    if (!ln) { showError('err-lastName', 'Last name is required'); ok = false; } 
+    if (!email.match(/^\S+@\S+\.\S+$/)) { showError('err-email', 'Enter a valid email address'); ok = false; } 
+    if (!phone.match(/^[+0-9\s\-()]{7,20}$/)) { showError('err-phone', 'Enter a valid phone number'); ok = false; } 
+    
+    // Password validation - simplified
+    if (pw.length < 8) { 
+      showError('err-password', 'Password must be at least 8 characters'); 
+      ok = false; 
+      console.log("❌ Password too short");
+    } else if (!pw.match(/[a-zA-Z]/) || !pw.match(/[0-9]/)) {
+      showError('err-password', 'Password must contain both letters and numbers'); 
+      ok = false; 
+      console.log("❌ Password missing letters or numbers");
+    } else {
+      console.log("✅ Password validation passed");
+    }
+    
+    if (pw !== conf) { showError('err-confirm', 'Passwords do not match'); ok = false; } 
+    if (!terms) { showError('err-terms', 'You must accept the terms and conditions'); ok = false; } 
+    
+    console.log("Final validation result:", ok);
+    return ok; 
+  }
+
+  // Password Strength Meter
+  const pwInput = document.getElementById('password'); 
+  const meter = document.getElementById('pwMeter'); 
+  pwInput.addEventListener('input', () => { 
+    const v = pwInput.value; 
+    let score = 0; 
+    if (v.length >= 8) score += 1; 
+    if (/[A-Z]/.test(v)) score += 1; 
+    if (/[0-9]/.test(v)) score += 1; 
+    if (/[^A-Za-z0-9]/.test(v)) score += 1; 
+    meter.style.width = `${(score / 4) * 100}%`; 
+    if (score === 0) meter.style.background = 'transparent'; 
+    else if (score === 1) meter.style.background = '#ff6b6b'; 
+    else if (score === 2) meter.style.background = '#ffa726'; 
+    else if (score === 3) meter.style.background = '#66bb6a'; 
+    else if (score === 4) meter.style.background = 'linear-gradient(90deg,#6ee7b7,#7c5cff)'; 
+  });
+
+  // Modal and Demo Functions
+  closeModal.addEventListener('click', () => overlay.style.display = 'none');
+  
+  demoBtn.addEventListener('click', () => { 
+    document.getElementById('firstName').value = 'Demo'; 
+    document.getElementById('lastName').value = 'User'; 
+    document.getElementById('email').value = 'demo@x-tramedata.com'; 
+    document.getElementById('phone').value = '+2348012345678'; 
+    document.getElementById('company').value = 'ExTremeData Demo'; 
+    document.getElementById('password').value = 'DemoPass123!'; 
+    document.getElementById('confirm').value = 'DemoPass123!'; 
+    document.getElementById('terms').checked = true; 
+    document.getElementById('plan').value = 'starter';
+    pwInput.dispatchEvent(new Event('input')); 
+  });
+  
+  document.getElementById("goDash").addEventListener("click", () => { 
+    window.location.href = "data.html"; 
+  });
+});
+</script>
+</body>
+</html>

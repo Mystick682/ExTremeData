@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit Funds - ExTremeData</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Paystack JS -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div class="mx-auto max-w-screen-sm px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <a href="data.html" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <h1 class="font-semibold">Deposit Funds</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-lg bg-indigo-600 text-white grid place-items-center text-xs font-bold">XT</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-screen-sm mx-auto p-4 space-y-4">
+    <!-- User Info Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white grid place-items-center font-bold" id="userAvatar">?</div>
+        <div>
+          <div class="font-medium" id="userName">Loading...</div>
+          <div class="text-sm text-gray-500 dark:text-gray-400" id="userEmail">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Balance -->
+    <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-4">
+      <div class="text-sm opacity-90">Current Balance</div>
+      <div class="text-2xl font-bold" id="currentBalance">₦0.00</div>
+      <div class="text-xs opacity-75 mt-1">Available for spending</div>
+    </div>
+
+    <!-- Deposit Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
+      <h2 class="text-lg font-semibold mb-4">Add Money to Wallet</h2>
+      
+      <!-- Amount Input -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Amount (₦)</label>
+        <input 
+          type="number" 
+          id="deposit-amount" 
+          class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+          placeholder="Enter amount (minimum ₦100)"
+          min="100"
+        >
+        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum deposit: ₦100</div>
+      </div>
+
+      <!-- Quick Amount Buttons -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Quick amounts</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button class="quick-amount bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-sm py-2 rounded-lg font-medium" data-amount="500">₦500</button>
+          <button class="quick-amount bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-sm py-2 rounded-lg font-medium" data-amount="1000">₦1,000</button>
+          <button class="quick-amount bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-sm py-2 rounded-lg font-medium" data-amount="2000">₦2,000</button>
+          <button class="quick-amount bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-sm py-2 rounded-lg font-medium" data-amount="5000">₦5,000</button>
+        </div>
+      </div>
+
+      <!-- Pay Button -->
+      <button 
+        id="pay-button" 
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <i data-lucide="credit-card" class="w-4 h-4"></i>
+        <span>Pay with Paystack</span>
+        <div class="loading hidden">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+        </div>
+      </button>
+    </div>
+
+    <!-- Recent Deposits -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold mb-3">Recent Deposits</h3>
+      <ul id="recentDeposits" class="space-y-2">
+        <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">
+          Loading deposits...
+        </li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    <div class="mx-auto max-w-screen-sm grid grid-cols-4 gap-2 px-6 py-2 text-xs">
+      <a href="data.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 py-1">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span>Home</span>
+      </a>
+      <a href="deposit.html" class="flex flex-col items-center text-indigo-600 font-medium py-1">
+        <i data-lucide="wallet" class="w-5 h-5"></i>
+        <span>Wallet</span>
+      </a>
+      <a href="transactions.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 py-1">
+        <i data-lucide="receipt" class="w-5 h-5"></i>
+        <span>History</span>
+      </a>
+      <a href="profile.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 py-1">
+        <i data-lucide="user" class="w-5 h-5"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </nav>
+
+<script>
+// 🔥 REPLACE WITH YOUR SUPABASE CREDENTIALS
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw'
+
+// Your Paystack public key
+const PAYSTACK_PUBLIC_KEY = 'pk_test_5efae5ee5e1946d14c0fb9071f2c5ca2e6e8d17a'
+
+// Initialize Supabase
+let supabase = null;
+let isSupabaseConnected = false;
+
+try {
+  if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    isSupabaseConnected = true;
+    console.log('✅ Supabase initialized successfully');
+  }
+} catch (error) {
+  console.error('❌ Supabase initialization failed:', error);
+  isSupabaseConnected = false;
+}
+
+class DepositManager {
+  constructor() {
+    this.userData = null;
+    this.currentUser = null;
+    this.loadUserData();
+    this.initializeUI();
+    this.setupEventListeners();
+  }
+
+  // Load user data from localStorage
+  loadUserData() {
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) {
+        this.userData = JSON.parse(storedData);
+        console.log("✅ User data loaded:", this.userData);
+      } else {
+        alert("Please sign in to continue");
+        window.location.href = "index.html";
+        return;
+      }
+    } catch (error) {
+      console.error("❌ Error loading user data:", error);
+      alert("Session expired. Please sign in again.");
+      window.location.href = "index.html";
+    }
+  }
+
+  // Initialize UI with user data
+  async initializeUI() {
+    if (!this.userData) return;
+
+    // Update user info
+    const initials = (this.userData.firstName?.charAt(0) || '') + (this.userData.lastName?.charAt(0) || '');
+    document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
+    document.getElementById('userName').textContent = `${this.userData.firstName || ''} ${this.userData.lastName || ''}`.trim() || 'User';
+    document.getElementById('userEmail').textContent = this.userData.email || '';
+
+    // Test Supabase connection and setup user profile
+    if (isSupabaseConnected) {
+      await this.ensureUserProfileExists();
+    }
+
+    // Load current balance and deposits
+    this.loadCurrentBalance();
+    this.loadRecentDeposits();
+
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+
+  // Ensure user profile exists in database
+  async ensureUserProfileExists() {
+    if (!isSupabaseConnected || !this.userData?.email) return false;
+
+    try {
+      // Check if user profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('email', this.userData.email)
+        .single();
+
+      if (fetchError && fetchError.code === 'PGRST116') {
+        // User doesn't exist, create profile
+        console.log('Creating new user profile...');
+        const { data: newProfile, error: createError } = await supabase
+          .from('user_profiles')
+          .insert([
+            {
+              email: this.userData.email,
+              first_name: this.userData.firstName || '',
+              last_name: this.userData.lastName || '',
+              balance: 0.00,
+              plan: this.userData.plan || 'starter'
+            }
+          ])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("❌ Failed to create user profile:", createError);
+          return false;
+        }
+
+        console.log("✅ User profile created successfully:", newProfile);
+        return true;
+      } else if (fetchError) {
+        console.error("❌ Database connection error:", fetchError);
+        return false;
+      }
+
+      console.log("✅ User profile exists:", existingProfile);
+      return true;
+    } catch (error) {
+      console.error("❌ Error ensuring user profile exists:", error);
+      return false;
+    }
+  }
+
+  // Setup event listeners
+  setupEventListeners() {
+    // Quick amount buttons
+    document.querySelectorAll('.quick-amount').forEach(button => {
+      button.addEventListener('click', () => {
+        const amount = button.getAttribute('data-amount');
+        document.getElementById('deposit-amount').value = amount;
+      });
+    });
+
+    // Pay button
+    document.getElementById('pay-button').addEventListener('click', () => {
+      this.initiatePayment();
+    });
+  }
+
+  // Load current balance (demo or from Supabase)
+  async loadCurrentBalance() {
+    if (isSupabaseConnected && this.userData?.email) {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('balance')
+          .eq('email', this.userData.email)
+          .single();
+
+        if (data && !error) {
+          console.log("✅ Balance loaded from database:", data.balance);
+          this.updateBalanceDisplay(data.balance || 0);
+          return;
+        } else if (error) {
+          console.error("❌ Balance loading error:", error);
+        }
+      } catch (error) {
+        console.error("❌ Database connection error:", error);
+      }
+    }
+
+    // Fallback: demo balance
+    console.log("Using demo balance");
+    this.updateBalanceDisplay(0);
+  }
+
+  // Update balance display
+  updateBalanceDisplay(balance) {
+    const balanceElement = document.getElementById('currentBalance');
+    if (balanceElement) {
+      balanceElement.textContent = `₦${parseFloat(balance || 0).toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })}`;
+    }
+  }
+
+  // Load recent deposits
+  async loadRecentDeposits() {
+    const depositsContainer = document.getElementById('recentDeposits');
+    if (!depositsContainer) return;
+    
+    if (isSupabaseConnected && this.userData?.email) {
+      try {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_email', this.userData.email)
+          .eq('type', 'deposit')
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (data && data.length > 0 && !error) {
+          console.log("✅ Recent deposits loaded:", data);
+          depositsContainer.innerHTML = data.map(transaction => `
+            <li class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div>
+                <div class="font-medium">₦${parseFloat(transaction.amount).toLocaleString()}</div>
+                <div class="text-xs text-gray-500">${new Date(transaction.created_at).toLocaleDateString()}</div>
+                <div class="text-xs text-gray-400">Ref: ${transaction.reference}</div>
+              </div>
+              <div class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Success</div>
+            </li>
+          `).join('');
+          return;
+        } else if (error) {
+          console.error("❌ Error loading deposits:", error);
+        }
+      } catch (error) {
+        console.error("❌ Database connection error:", error);
+      }
+    }
+
+    // Fallback: no deposits message
+    depositsContainer.innerHTML = `
+      <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">
+        No deposits yet
+      </li>
+    `;
+  }
+
+  // Initiate Paystack payment
+  initiatePayment() {
+    const amount = parseFloat(document.getElementById('deposit-amount').value);
+    
+    // Validation
+    if (!amount || amount < 100) {
+      alert("Please enter a valid amount (minimum ₦100)");
+      return;
+    }
+
+    if (!this.userData || !this.userData.email) {
+      alert("User email not found. Please sign in again.");
+      return;
+    }
+
+    // Show loading state
+    const payButton = document.getElementById('pay-button');
+    const buttonText = payButton.querySelector('span');
+    const loading = payButton.querySelector('.loading');
+    
+    payButton.disabled = true;
+    buttonText.textContent = 'Processing...';
+    if (loading) loading.classList.remove('hidden');
+
+    // Generate unique reference
+    const reference = `xt_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+    // Initialize Paystack payment
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: this.userData.email,
+      amount: amount * 100, // Convert to kobo
+      currency: "NGN",
+      ref: reference,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "User Email",
+            variable_name: "user_email",
+            value: this.userData.email
+          }
+        ]
+      },
+      callback: (response) => {
+        console.log("✅ Payment successful:", response);
+        this.verifyPayment(response.reference, amount);
+      },
+      onClose: () => {
+        console.log("❌ Payment cancelled");
+        this.resetPayButton();
+        alert('Payment was cancelled.');
+      }
+    });
+
+    handler.openIframe();
+  }
+
+  // Verify payment and update balance
+  async verifyPayment(reference, amount) {
+    console.log("🔍 Verifying payment:", reference);
+
+    try {
+      if (isSupabaseConnected && this.userData) {
+        const userEmail = this.userData.email;
+        
+        // Get current user profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('email', userEmail)
+          .single();
+
+        if (profileError) {
+          console.error("❌ Profile fetch error:", profileError);
+          throw new Error("Failed to fetch user profile");
+        }
+
+        // Record transaction
+        const { data: transactionData, error: transactionError } = await supabase
+          .from('transactions')
+          .insert([
+            {
+              user_email: userEmail,
+              type: 'deposit',
+              amount: amount,
+              status: 'completed',
+              reference: reference,
+              payment_method: 'paystack',
+              description: `Wallet deposit via Paystack - ₦${amount.toLocaleString()}`
+            }
+          ])
+          .select()
+          .single();
+
+        if (transactionError) {
+          console.error("❌ Transaction recording error:", transactionError);
+          throw new Error("Failed to record transaction");
+        }
+
+        console.log("✅ Transaction recorded:", transactionData);
+
+        // Update user balance
+        const currentBalance = parseFloat(profileData.balance || 0);
+        const newBalance = currentBalance + amount;
+
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from('user_profiles')
+          .update({ 
+            balance: newBalance,
+            updated_at: new Date().toISOString()
+          })
+          .eq('email', userEmail)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error("❌ Balance update error:", updateError);
+          throw new Error("Failed to update balance");
+        }
+
+        console.log("✅ Balance updated successfully:", updatedProfile);
+
+        // Success notification
+        alert(`✅ Payment successful! ₦${amount.toLocaleString()} added to your wallet.\n\nNew Balance: ₦${newBalance.toLocaleString()}`);
+        
+        // Update UI
+        this.updateBalanceDisplay(newBalance);
+        await this.loadRecentDeposits();
+        
+        // Clear the deposit amount input
+        document.getElementById('deposit-amount').value = '';
+        
+        // Redirect to dashboard after a short delay
+        setTimeout(() => {
+          window.location.href = "data.html";
+        }, 2000);
+
+        return;
+      }
+
+      // Fallback for demo mode
+      console.log("Demo mode - no Supabase connection");
+      alert(`✅ Demo Mode: ₦${amount.toLocaleString()} would be added to your wallet.\n\nPlease set up your database tables properly for real transactions.`);
+      
+    } catch (error) {
+      console.error("❌ Payment verification failed:", error);
+      alert(`❌ Payment verification failed: ${error.message}\n\nReference: ${reference}\n\nPlease contact support if your payment was deducted.`);
+    } finally {
+      this.resetPayButton();
+    }
+  }
+
+  // Reset pay button state
+  resetPayButton() {
+    const payButton = document.getElementById('pay-button');
+    if (!payButton) return;
+    
+    const buttonText = payButton.querySelector('span');
+    const loading = payButton.querySelector('.loading');
+    
+    payButton.disabled = false;
+    if (buttonText) buttonText.textContent = 'Pay with Paystack';
+    if (loading) loading.classList.add('hidden');
+  }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 ExTremeData Deposit Page Loading...');
+  try {
+    new DepositManager();
+  } catch (error) {
+    console.error('❌ Failed to initialize DepositManager:', error);
+  }
+});
+</script>
+</body>
+</html>

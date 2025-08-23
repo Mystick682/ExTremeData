@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ExTremeData — Sign In</title>
+  <meta name="description" content="Sign in to X-TrameData" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa7bf;
+      --accent:#6ee7b7;
+      --accent-2:#7c5cff;
+      --radius:14px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#061028 0%, #071226 60%);color:#e6eef8}
+    .container{min-height:100vh;display:grid;place-items:center;padding:36px}
+    .card{width:480px;max-width:100%;border-radius:var(--radius);overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 30px rgba(2,6,23,0.7)}
+    
+    .form-wrap{padding:36px 44px;display:flex;flex-direction:column;gap:18px}
+    h2{margin:6px 0 0 0;font-size:22px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    
+    form{display:grid;gap:16px;margin-top:8px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"],input[type="email"],input[type="password"]{
+      width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+      background:transparent;color:inherit;font-size:14px
+    }
+    
+    .actions{display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:12px 16px;border-radius:11px;color:#05232a;border:none;font-weight:700;cursor:pointer;width:100%}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600;width:100%}
+    .error{color:#ff8181;font-size:13px}
+    .hint{font-size:12px;color:var(--muted)}
+    .forgot{font-size:12px;color:var(--accent-2);cursor:pointer;text-align:right}
+    
+    .overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(1,6,14,0.6);z-index:40;opacity:0;transition:opacity 0.3s ease;}
+    .overlay.show{display:grid;opacity:1;}
+    
+    .modal{background: var(--card); padding:26px; border-radius:14px; min-width:320px; text-align:center; display:flex; flex-direction:column; gap:14px; transform:scale(0.8); transition:transform 0.3s ease;}
+    .overlay.show .modal{transform:scale(1);}
+    
+    @media (max-width:768px){
+      .card{width:100%}
+      .form-wrap{padding:20px}
+      input,button{font-size:16px;padding:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" role="region" aria-label="Sign In card">
+      <main class="form-wrap">
+        <div>
+          <h2>Sign in to X-TrameData</h2>
+          <p class="lead">Enter your credentials to access your account.</p>
+        </div>
+
+        <form id="loginForm" novalidate>
+          <div>
+            <label for="loginEmail">Email or Phone</label>
+            <input id="loginEmail" name="loginEmail" type="text" required>
+            <div class="error" id="err-loginEmail" aria-live="polite"></div>
+          </div>
+
+          <div>
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" name="loginPassword" type="password" required>
+            <div class="error" id="err-loginPassword" aria-live="polite"></div>
+          </div>
+
+          <div class="forgot" id="forgotBtn">Forgot Password?</div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Sign In</button>
+            <button class="btn ghost" type="button" id="demoLoginBtn">Demo Account</button>
+          </div>
+
+          <div style="text-align:center;margin-top:8px;color:var(--muted);font-size:13px">
+            Don't have an account? <a href="index.html" style="color:var(--accent-2)">Sign up</a>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="overlay" id="forgotOverlay" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <h3>Reset Password</h3>
+      <p class="hint">Enter your email to receive reset instructions.</p>
+      <input type="email" id="resetEmail" placeholder="you@example.com">
+      <div class="error" id="err-resetEmail" aria-live="polite"></div>
+      <button class="btn" id="sendReset">Send Reset Link</button>
+      <button class="btn ghost" id="closeForgot">Cancel</button>
+    </div>
+  </div>
+
+ <script>
+  const form = document.getElementById('loginForm');
+  const demoLoginBtn = document.getElementById('demoLoginBtn');
+  const forgotBtn = document.getElementById('forgotBtn');
+  const forgotOverlay = document.getElementById('forgotOverlay');
+  const closeForgot = document.getElementById('closeForgot');
+  const sendReset = document.getElementById('sendReset');
+
+  function showError(id, msg) {
+    document.getElementById(id).textContent = msg || '';
+  }
+
+  // --- Regular login (frontend only) ---
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pw = document.getElementById('loginPassword').value;
+
+    let ok = true;
+    if(!email){ showError('err-loginEmail','Required'); ok=false;} else showError('err-loginEmail','');
+    if(!pw){ showError('err-loginPassword','Required'); ok=false;} else showError('err-loginPassword','');
+
+    if(ok){
+      // Get stored signup credentials
+      const storedEmail = localStorage.getItem("signupEmail");
+      const storedPassword = localStorage.getItem("signupPassword");
+      const storedName = localStorage.getItem("signupName");
+
+      // Check login
+      if(email === storedEmail && pw === storedPassword){
+        localStorage.setItem("username", storedName); // Save for dashboard
+        window.location.href = "data.html";
+      } else {
+        alert("Invalid email or password.");
+      }
+    }
+  });
+
+  // --- Demo login button ---
+  demoLoginBtn.addEventListener('click', () => {
+    localStorage.setItem("username", "Demo User");
+    window.location.href = 'data.html';
+  });
+
+  // --- Forgot password modal ---
+  forgotBtn.addEventListener('click', () => forgotOverlay.classList.add('show'));
+  closeForgot.addEventListener('click', () => forgotOverlay.classList.remove('show'));
+  sendReset.addEventListener('click', () => {
+    const email = document.getElementById('resetEmail').value.trim();
+    if(!email){ showError('err-resetEmail','Email required'); return; }
+    showError('err-resetEmail','');
+    alert(`Password reset link sent to ${email} (demo placeholder)`);
+    forgotOverlay.classList.remove('show');
+  });
+</script>
+
+</body>
+</html>
