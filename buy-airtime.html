@@ -1,747 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buy Airtime - ExTremeData</title>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Airtime - X-TrameData</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+  /* --- PROFESSIONAL DESIGN SYSTEM (Identical to data-topup page) --- */
+  :root {
+    --color-primary: #2563EB; /* Blue-600 */
+    --color-primary-hover: #1D4ED8; /* Blue-700 */
+    --color-primary-light: #EFF6FF; /* Blue-50 */
+    --color-text-primary: #1E293B; /* Slate-800 */
+    --color-text-secondary: #64748B; /* Slate-500 */
+    --color-border: #E2E8F0; /* Slate-200 */
+    --color-background: #F8FAFC; /* Slate-50 */
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-interactive: 0 0 0 4px rgb(59 130 246 / 0.25);
+  }
+  .dark {
+    --color-primary: #3B82F6;
+    --color-primary-hover: #60A5FA;
+    --color-primary-light: #1F2937;
+    --color-text-primary: #F8FAFC;
+    --color-text-secondary: #94A3B8;
+    --color-border: #334155;
+    --color-background: #0F172A;
+  }
   body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f9ff;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
-
-  /* Sidebar - desktop */
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 280px;
-    height: 100%;
-    background: #f5f5f5;
-    color: #333;
+  .header-nav {
+    background-color: white;
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+  }
+  .dark .header-nav { background-color: #111827; }
+  .section-card {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease-in-out;
+  }
+  .dark .section-card { background-color: var(--color-primary-light); }
+  .section-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  .horizontal-scroll-container {
     display: flex;
-    flex-direction: column;
-    padding: 0;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-
-  .sidebar .user-header {
-    background: white;
-    padding: 20px;
-    border-bottom: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  .horizontal-scroll-container::-webkit-scrollbar { display: none; }
+  .network-card {
+    flex-shrink: 0;
+    width: 140px;
+    padding: 1rem;
+    border: 2px solid var(--color-border);
+    border-radius: 1rem;
+    transition: all 0.2s ease-in-out;
   }
-
-  .sidebar .username {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+  .network-card.selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    transform: scale(1.05);
   }
-
-  .sidebar .power-icon {
-    font-size: 20px;
-    color: #666;
-    cursor: pointer;
+  .network-logo { width: 36px; height: 36px; }
+  .elegant-input {
+    background-color: var(--color-background);
+    border: 2px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease-in-out;
   }
-
-  .sidebar .menu-section {
-    margin-bottom: 30px;
-    padding: 0 20px;
+  .elegant-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-interactive);
+    outline: none;
   }
-
-  .sidebar .section-title {
-    font-size: 14px;
-    color: #999;
-    text-transform: uppercase;
-    margin-bottom: 15px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-  }
-
-  .sidebar .menu-item {
-    display: flex;
-    align-items: center;
-    padding: 15px 0;
-    text-decoration: none;
-    color: #333;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s;
-  }
-
-  .sidebar .menu-item:hover {
-    background: #e8e8e8;
-    margin: 0 -20px;
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-
-  .sidebar .menu-item:last-child {
-    border-bottom: none;
-  }
-
-  .sidebar .menu-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 15px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.7;
-  }
-
-  .sidebar .menu-icon::before {
-    font-size: 16px;
-  }
-
-  /* Main content */
-  .main {
-    margin-left: 280px;
-    padding: 20px;
-  }
-
-  /* Mobile navbar */
-  .mobile-navbar {
-    display: none;
-    background: #004aad;
+  .purchase-button {
+    background-color: var(--color-primary);
     color: white;
-    padding: 10px 20px;
-    justify-content: flex-start;
-    align-items: center;
-    position: relative;
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    box-shadow: var(--shadow-lg);
   }
-
-  .mobile-navbar span.brand {
-    margin-left: 10px;
-    font-weight: bold;
-    font-size: 18px;
+  .purchase-button:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
   }
-
-  /* Hamburger */
-  .hamburger {
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    width: 25px;
-    height: 20px;
-    justify-content: space-between;
+  .purchase-button:disabled {
+    background-color: #94A3B8;
+    cursor: not-allowed;
+    box-shadow: none;
   }
-
-  .hamburger span {
-    width: 100%;
-    height: 2.5px;
-    background: white;
-    margin: 1px 0;
-  }
-
-  .mobile-links {
-    position: fixed;
-    top: 0;
-    left: -300px;
-    width: 300px;
-    height: 100%;
-    background: #f5f5f5;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    transition: left 0.3s ease;
-    z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-  }
-
-  .mobile-links.show {
-    left: 0;
-  }
-
-  /* User header */
-  .user-header {
-    background: white;
-    padding: 20px;
-    border-bottom: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-
-  .username {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-  }
-
-  .power-icon {
-    font-size: 20px;
-    color: #666;
-    cursor: pointer;
-  }
-
-  /* Menu sections */
-  .menu-section {
-    margin-bottom: 30px;
-    padding: 0 20px;
-  }
-
-  .section-title {
-    font-size: 14px;
-    color: #999;
-    text-transform: uppercase;
-    margin-bottom: 15px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-  }
-
-  .menu-item {
-    display: flex;
-    align-items: center;
-    padding: 15px 0;
-    text-decoration: none;
-    color: #333;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s;
-  }
-
-  .menu-item:hover {
-    background: #e8e8e8;
-    margin: 0 -20px;
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-
-  .menu-item:last-child {
-    border-bottom: none;
-  }
-
-  .menu-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 15px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.7;
-  }
-
-  /* Icons using CSS shapes and symbols */
-  .icon-dashboard::before { content: "📊"; }
-  .icon-history::before { content: "📋"; }
-  .icon-wallet::before { content: "💰"; }
-  .icon-cash::before { content: "💵"; }
-  .icon-withdraw::before { content: "🏦"; }
-  .icon-airtime::before { content: "📱"; }
-  .icon-data::before { content: "📶"; }
-  .icon-bills::before { content: "💳"; }
-  .icon-settings::before { content: "⚙"; }
-  .icon-logout::before { content: "🚪"; }
-
-  .menu-icon::before {
-    font-size: 16px;
-  }
-
-  /* Overlay */
-  .overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.4);
-    z-index: 900;
-  }
-
-  /* Buy Airtime container */
-  .container {
-    max-width: 400px;
-    margin: 50px auto;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-
-  h2 {
-    text-align: center;
-    color: #004aad;
-    margin-bottom: 20px;
-  }
-
-  label {
-    font-weight: bold;
-    color: #333;
-    margin-top: 10px;
-    display: block;
-  }
-
-  .networks {
-    display: flex;
-    justify-content: space-between;
-    margin: 15px 0;
-  }
-
-  .networks img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    border: 2px solid transparent;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .networks img.active {
-    border-color: #004aad;
-    background: #e6f0ff;
-  }
-
-  .recent {
-    display: flex;
-    gap: 10px;
-    margin: 15px 0;
-  }
-
-  .recent .num {
-    flex: 1;
-    padding: 8px;
-    text-align: center;
-    background: #f0f4fa;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  .amount-options {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 15px 0;
-  }
-
-  .amount-btn {
-    padding: 12px 8px;
-    text-align: center;
-    background: #f0f4fa;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #004aad;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .amount-btn:hover {
-    background: #e6f0ff;
-    border-color: #004aad;
-  }
-
-  .amount-btn.active {
-    background: #004aad;
-    color: white;
-    border-color: #004aad;
-  }
-
-  input, select {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 14px;
-    box-sizing: border-box;
-  }
-
-  .save {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0;
-  }
-
-  .save input {
-    width: auto;
-  }
-
-  button {
-    width: 100%;
-    padding: 12px;
-    background: #004aad;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    background: #003380;
-  }
-
-  /* Responsive */
-  @media(max-width: 768px){
-    .sidebar { display: none; }
-    .main { margin-left: 0; }
-    .mobile-navbar { display: flex; }
-  }
-</style>
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .loading { animation: spin 1s linear infinite; }
+  </style>
 </head>
-<body>
 
-<!-- Paystack Inline JS -->
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
-<!-- Desktop sidebar -->
-<div class="sidebar">
-  <div class="user-header">
-    <span class="username">Legitdata</span>
-    <span class="power-icon">⏻</span>
-  </div>
-
-  <div class="menu-section">
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-dashboard"></span>
-      Dashboard
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-history"></span>
-      Transaction History
-    </a>
-  </div>
-
-  <div class="menu-section">
-    <div class="section-title">Main</div>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-wallet"></span>
-      Fund Wallet
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-cash"></span>
-      Airtime To Cash
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-withdraw"></span>
-      Withdraw
-    </a>
-  </div>
-
-  <div class="menu-section">
-    <div class="section-title">Services</div>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-airtime"></span>
-      Airtime Topup
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-data"></span>
-      Data Topup
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-bills"></span>
-      Pay Bills
-    </a>
-  </div>
-
-  <div class="menu-section">
-    <div class="section-title">Settings</div>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-settings"></span>
-      Account Settings
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-logout"></span>
-      Logout
-    </a>
-  </div>
-</div>
-
-<!-- Mobile navbar -->
-<div class="mobile-navbar">
-  <div class="hamburger" id="hamburger">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-  <span class="brand">ExTremeData</span>
-</div>
-
-<!-- Mobile side menu -->
-<div class="mobile-links" id="mobileLinks">
-  <div class="user-header">
-    <span class="username">Legitdata</span>
-    <span class="power-icon">⏻</span>
-  </div>
-
-  <div class="menu-section">
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-dashboard"></span>
-      Dashboard
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-history"></span>
-      Transaction History
-    </a>
-  </div>
-
-  <div class="menu-section">
-    <div class="section-title">Main</div>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-wallet"></span>
-      Fund Wallet
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-cash"></span>
-      Airtime To Cash
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-withdraw"></span>
-      Withdraw
-    </a>
-  </div>
-
-  <div class="menu-section">
-    <div class="section-title">Services</div>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-airtime"></span>
-      Airtime Topup
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-data"></span>
-      Data Topup
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-bills"></span>
-      Pay Bills
-    </a>
-  </div>
-
-  <div class="menu-section">
-    <div class="section-title">Settings</div>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-settings"></span>
-      Account Settings
-    </a>
-    <a href="#" class="menu-item">
-      <span class="menu-icon icon-logout"></span>
-      Logout
-    </a>
-  </div>
-</div>
-
-<!-- Overlay -->
-<div class="overlay" id="overlay"></div>
-
-<!-- Main content -->
-<div class="main">
-  <div class="container">
-    <h2>Buy <span style="color:#004aad;">Airtime</span></h2>
-
-    <label>Network:</label>
-    <div class="networks">
-      <img src="assets/mt.png" alt="MTN" onclick="selectNetwork(this)">
-      <img src="assets/air.png" alt="Airtel" onclick="selectNetwork(this)">
-      <img src="assets/glo.jpg" alt="Glo" onclick="selectNetwork(this)">
-      <img src="assets/eti.jpg" alt="9mobile" onclick="selectNetwork(this)">
+<body class="min-h-screen">
+<!-- Navigation -->
+<nav class="header-nav sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center space-x-3">
+        <button onclick="history.back()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </button>
+        <h1 class="text-lg font-bold">Buy Airtime</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="text-right">
+          <div class="text-xs text-slate-500 dark:text-slate-400">Balance</div>
+          <div id="walletBalance" class="font-bold text-lg">₦0.00</div>
+        </div>
+        <div id="userAvatar" class="w-10 h-10 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white dark:border-gray-800">?</div>
+      </div>
     </div>
-
-    <label>Recently Used:</label>
-    <div class="recent">
-      <div class="num">My Num</div>
-      <div class="num">070508</div>
-      <div class="num">091612</div>
-      <div class="num">081699</div>
-    </div>
-
-    <label>Phone Number:</label>
-    <input type="text" id="phoneNumber" placeholder="Enter Phone Number">
-
-    <label>Amount:</label>
-    <div class="amount-options">
-      <div class="amount-btn" onclick="selectAmount(this, 100)">₦100</div>
-      <div class="amount-btn" onclick="selectAmount(this, 200)">₦200</div>
-      <div class="amount-btn" onclick="selectAmount(this, 500)">₦500</div>
-      <div class="amount-btn" onclick="selectAmount(this, 1000)">₦1,000</div>
-      <div class="amount-btn" onclick="selectAmount(this, 2000)">₦2,000</div>
-      <div class="amount-btn" onclick="selectAmount(this, 5000)">₦5,000</div>
-    </div>
-
-    <label>Custom Amount:</label>
-    <input type="number" id="customAmount" placeholder="Enter Amount">
-
-    <div class="save">
-      <input type="checkbox" id="save">
-      <label for="save">Save Beneficiary</label>
-    </div>
-
-    <button onclick="initiatePayment()">Continue</button>
   </div>
-</div>
+</nav>
+
+<main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+  
+  <!-- Network Selection -->
+  <section class="section-card">
+    <h2 class="text-xl font-bold mb-4 flex items-center">
+      <div class="w-8 h-8 mr-3 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center">
+        <i data-lucide="wifi" class="w-5 h-5"></i>
+      </div>
+      Select Network
+    </h2>
+    <div class="horizontal-scroll-container space-x-4">
+      <!-- Network Cards will be rendered here by JavaScript -->
+    </div>
+  </section>
+
+  <!-- Details Section (Phone & Amount) -->
+  <div id="detailsSection" class="space-y-6 hidden">
+    <!-- Phone Number Input -->
+    <section class="section-card">
+      <h2 class="text-xl font-bold mb-4 flex items-center">
+        <div class="w-8 h-8 mr-3 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center">
+          <i data-lucide="phone" class="w-5 h-5"></i>
+        </div>
+        Enter Phone Number
+      </h2>
+      <div class="relative">
+        <input type="tel" id="phoneNumber" placeholder="080 1234 5678" class="elegant-input w-full text-lg font-medium" maxlength="11" pattern="[0-9]{11}">
+        <i data-lucide="smartphone" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+      </div>
+    </section>
+
+    <!-- Amount Input -->
+    <section class="section-card">
+      <h2 class="text-xl font-bold mb-4 flex items-center">
+        <div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center">
+          <i data-lucide="wallet" class="w-5 h-5"></i>
+        </div>
+        Enter Amount
+      </h2>
+      <div class="relative">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-slate-400">₦</span>
+        <input type="number" id="airtimeAmount" placeholder="50 - 10,000" class="elegant-input w-full text-lg font-medium pl-10">
+      </div>
+       <p class="text-xs text-slate-400 mt-2">Minimum purchase is ₦50.</p>
+    </section>
+  </div>
+  
+  <!-- Purchase Summary & Action -->
+  <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
+    <section class="section-card bg-white dark:bg-slate-800 shadow-lg">
+      <h3 class="text-lg font-bold mb-4">Summary</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between"><span class="text-slate-500">Network</span><span id="summaryNetwork" class="font-semibold">-</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Phone Number</span><span id="summaryPhone" class="font-semibold">-</span></div>
+        <hr class="border-dashed border-slate-200 dark:border-slate-700 my-2">
+        <div class="flex justify-between items-center text-lg"><span class="font-bold">Total</span><span id="summaryAmount" class="font-bold text-2xl text-blue-600 dark:text-blue-400">₦0.00</span></div>
+      </div>
+    </section>
+    
+    <div class="text-center">
+      <button id="purchaseBtn" class="purchase-button w-full max-w-sm mx-auto" disabled>
+        <span class="flex items-center justify-center space-x-2">
+          <span id="purchaseBtnText">Enter Amount</span>
+          <i data-lucide="arrow-right" class="w-5 h-5" id="purchaseBtnIcon"></i>
+          <i data-lucide="loader" class="loading w-5 h-5 hidden" id="purchaseBtnLoader"></i>
+        </span>
+      </button>
+    </div>
+  </div>
+
+</main>
 
 <script>
-  let selectedAmount = 0;
-  let selectedNetwork = '';
+// --- DARK MODE SYNCHRONIZATION LOGIC ---
+function applyDarkMode() {
+  const savedTheme = localStorage.getItem('xt_theme'); 
+  document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+}
+window.addEventListener('storage', (event) => {
+  if (event.key === 'xt_theme') applyDarkMode();
+});
+applyDarkMode();
+// --- END OF DARK MODE LOGIC ---
 
-  // Paystack Configuration
-  const PAYSTACK_PUBLIC_KEY = 'pk_test_your_public_key_here'; // Replace with your actual public key
 
-  function selectNetwork(el) {
-    document.querySelectorAll('.networks img').forEach(img => img.classList.remove('active'));
-    el.classList.add('active');
-    selectedNetwork = el.alt;
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+let supabase = null;
+let isSupabaseConnected = false;
+try {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  isSupabaseConnected = true;
+} catch (error) { console.error('Supabase initialization failed:', error); }
+
+const networks = [
+    { id: 'mtn', name: 'MTN', logo: `<rect width="100" height="100" fill="#FFCC00"/><text x="50" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#000">MTN</text>` },
+    { id: 'airtel', name: 'Airtel', logo: `<rect width="100" height="100" fill="#FF0000"/><text x="50" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#FFF">Airtel</text><text x="50" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#FFF">4G</text>` },
+    { id: 'glo', name: 'Glo', logo: `<rect width="100" height="100" fill="#00A651"/><text x="50" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFF">Glo</text>` },
+    { id: '9mobile', name: '9Mobile', logo: `<rect width="100" height="100" fill="#00A4E4"/><text x="50" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#FFF">9</text><text x="50" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#FFF">mobile</text>` }
+];
+
+
+class AirtimePurchaseManager {
+  constructor() {
+    this.userData = null;
+    this.selectedNetwork = null;
+    this.phoneNumber = '';
+    this.airtimeAmount = 0;
+    this.userBalance = 0;
+    
+    this.loadUserData();
+    this.initializeUI();
+    this.setupEventListeners();
   }
 
-  function selectAmount(el, amount) {
-    document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
-    el.classList.add('active');
-    selectedAmount = amount;
-    
-    // Clear custom amount input when preset amount is selected
-    document.getElementById('customAmount').value = '';
-  }
-
-  // Clear preset amount selection when custom amount is entered
-  document.getElementById('customAmount').addEventListener('input', function() {
-    if (this.value) {
-      document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
-      selectedAmount = parseInt(this.value);
-    }
-  });
-
-  function validateForm() {
-    const phoneNumber = document.getElementById('phoneNumber').value.trim();
-    const customAmount = document.getElementById('customAmount').value;
-    
-    // Check if network is selected
-    if (!selectedNetwork) {
-      alert('Please select a network provider');
-      return false;
-    }
-    
-    // Check if phone number is entered
-    if (!phoneNumber) {
-      alert('Please enter a phone number');
-      return false;
-    }
-    
-    // Check if phone number is valid (basic validation)
-    const phoneRegex = /^[0-9]{10,11}$/;
-    if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
-      alert('Please enter a valid phone number (10-11 digits)');
-      return false;
-    }
-    
-    // Check if amount is selected or entered
-    if (!selectedAmount && !customAmount) {
-      alert('Please select an amount or enter a custom amount');
-      return false;
-    }
-    
-    // Use custom amount if entered
-    if (customAmount) {
-      selectedAmount = parseInt(customAmount);
-    }
-    
-    // Check minimum amount
-    if (selectedAmount < 50) {
-      alert('Minimum airtime amount is ₦50');
-      return false;
-    }
-    
-    return true;
-  }
-
-  function initiatePayment() {
-    if (!validateForm()) {
-      return;
-    }
-    
-    const phoneNumber = document.getElementById('phoneNumber').value.trim();
-    const customAmount = document.getElementById('customAmount').value;
-    const finalAmount = customAmount ? parseInt(customAmount) : selectedAmount;
-    
-    // Generate a unique reference
-    const reference = 'airtime_' + Date.now();
-    
-    const handler = PaystackPop.setup({
-      key: PAYSTACK_PUBLIC_KEY,
-      email: 'customer@example.com', // You should collect this or use a default
-      amount: finalAmount * 100, // Paystack expects amount in kobo
-      currency: 'NGN',
-      reference: reference,
-      metadata: {
-        custom_fields: [
-          {
-            display_name: "Service Type",
-            variable_name: "service_type",
-            value: "Airtime Purchase"
-          },
-          {
-            display_name: "Network Provider",
-            variable_name: "network",
-            value: selectedNetwork
-          },
-          {
-            display_name: "Phone Number",
-            variable_name: "phone_number",
-            value: phoneNumber
-          },
-          {
-            display_name: "Amount",
-            variable_name: "amount",
-            value: finalAmount
-          }
-        ]
-      },
-      callback: function(response) {
-        // Payment successful
-        alert('Payment successful! Reference: ' + response.reference);
-        
-        // Here you would typically:
-        // 1. Send the payment details to your backend
-        // 2. Process the airtime purchase
-        // 3. Redirect to a success page
-        
-        console.log('Payment response:', response);
-        
-        // Example: redirect to success page
-        // window.location.href = '/payment-success.html?ref=' + response.reference;
-        
-        // For now, just reset the form
-        resetForm();
-      },
-      onClose: function() {
-        alert('Payment cancelled');
+  loadUserData() {
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) this.userData = JSON.parse(storedData);
+      else {
+        alert("Please sign in to continue");
+        window.location.href = "index.html";
       }
-    });
+    } catch (error) {
+      alert("Session expired. Please sign in again.");
+      window.location.href = "index.html";
+    }
+  }
+
+  async initializeUI() {
+    if (!this.userData) return;
+    const initials = (this.userData.firstName?.charAt(0) || '') + (this.userData.lastName?.charAt(0) || '');
+    document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
     
-    handler.openIframe();
+    this.renderNetworkCards();
+    await this.loadWalletBalance();
+    lucide.createIcons();
+  }
+
+  renderNetworkCards() {
+    const container = document.querySelector('.horizontal-scroll-container');
+    container.innerHTML = networks.map(net => `
+      <div class="network-card cursor-pointer text-center space-y-2" data-network="${net.id}">
+        <div class="flex justify-center">
+          <svg class="network-logo rounded-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${net.logo}</svg>
+        </div>
+        <div class="font-semibold text-sm">${net.name}</div>
+      </div>
+    `).join('');
+  }
+
+  async loadWalletBalance() {
+    if (isSupabaseConnected && this.userData?.email) {
+      try {
+        const { data, error } = await supabase.from('user_profiles').select('balance').eq('email', this.userData.email).single();
+        if (error) throw error;
+        if (data) {
+          this.userBalance = parseFloat(data.balance || 0);
+          document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString()}`;
+        }
+      } catch (error) {
+        console.error("Error loading balance:", error);
+        document.getElementById('walletBalance').textContent = 'Error';
+      }
+    }
+  }
+
+  setupEventListeners() {
+    // Network selection
+    document.querySelector('.horizontal-scroll-container').addEventListener('click', (e) => {
+        const card = e.target.closest('.network-card');
+        if (!card) return;
+        document.querySelectorAll('.network-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        this.selectedNetwork = card.dataset.network;
+        document.getElementById('detailsSection').classList.remove('hidden');
+        this.updateState();
+    });
+
+    // Phone number input
+    document.getElementById('phoneNumber').addEventListener('input', (e) => {
+      this.phoneNumber = e.target.value.replace(/\D/g, '');
+      this.updateState();
+    });
+
+    // Airtime amount input
+    document.getElementById('airtimeAmount').addEventListener('input', (e) => {
+        this.airtimeAmount = parseFloat(e.target.value) || 0;
+        this.updateState();
+    });
+
+    // Purchase button
+    document.getElementById('purchaseBtn').addEventListener('click', () => this.processPurchase());
   }
   
-  function resetForm() {
+  updateState() {
+    const summarySection = document.getElementById('summarySection');
+    const btn = document.getElementById('purchaseBtn');
+    const btnText = document.getElementById('purchaseBtnText');
+    
+    // Condition for readiness: network, 11-digit phone, and amount >= 50
+    const isReady = this.selectedNetwork && this.phoneNumber.length === 11 && this.airtimeAmount >= 50;
+    
+    summarySection.classList.toggle('hidden', !isReady);
+
+    if (isReady) {
+        document.getElementById('summaryNetwork').textContent = this.selectedNetwork.toUpperCase();
+        document.getElementById('summaryPhone').textContent = this.phoneNumber;
+        document.getElementById('summaryAmount').textContent = `₦${this.airtimeAmount.toLocaleString()}`;
+        btnText.textContent = `Pay ₦${this.airtimeAmount.toLocaleString()}`;
+        btn.disabled = false;
+    } else {
+        btn.disabled = true;
+        if (!this.selectedNetwork) btnText.textContent = 'Select a Network';
+        else if (this.phoneNumber.length !== 11) btnText.textContent = 'Enter Phone Number';
+        else btnText.textContent = 'Enter Amount (min ₦50)';
+    }
+  }
+
+  resetUI() {
+    document.querySelectorAll('.network-card.selected').forEach(c => c.classList.remove('selected'));
+    document.getElementById('detailsSection').classList.add('hidden');
+    document.getElementById('summarySection').classList.add('hidden');
     document.getElementById('phoneNumber').value = '';
-    document.getElementById('customAmount').value = '';
-    document.querySelectorAll('.networks img').forEach(img => img.classList.remove('active'));
-    document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('save').checked = false;
-    selectedAmount = 0;
-    selectedNetwork = '';
+    document.getElementById('airtimeAmount').value = '';
+    this.selectedNetwork = null;
+    this.phoneNumber = '';
+    this.airtimeAmount = 0;
+    this.updateState();
   }
 
-  // Hamburger toggle for side menu
-  const hamburger = document.getElementById('hamburger');
-  const mobileLinks = document.getElementById('mobileLinks');
-  const overlay = document.getElementById('overlay');
+  async processPurchase() {
+    if (this.airtimeAmount > this.userBalance) {
+      return this.showNotification(`Insufficient balance. You need ₦${this.airtimeAmount.toLocaleString()}`, 'error');
+    }
 
-  function toggleMenu() {
-    mobileLinks.classList.toggle('show');
-    overlay.style.display = mobileLinks.classList.contains('show') ? 'block' : 'none';
+    const btn = document.getElementById('purchaseBtn');
+    const btnText = document.getElementById('purchaseBtnText');
+    const btnIcon = document.getElementById('purchaseBtnIcon');
+    const btnLoader = document.getElementById('purchaseBtnLoader');
+    
+    btn.disabled = true;
+    btnText.textContent = 'Processing...';
+    btnIcon.classList.add('hidden');
+    btnLoader.classList.remove('hidden');
+
+    try {
+      if (isSupabaseConnected) {
+        const newBalance = this.userBalance - this.airtimeAmount;
+        const { error: updateError } = await supabase.from('user_profiles').update({ balance: newBalance }).eq('email', this.userData.email);
+        if (updateError) throw new Error('Failed to update balance');
+
+        await supabase.from('transactions').insert([{
+          user_email: this.userData.email, type: 'purchase', amount: this.airtimeAmount, status: 'completed',
+          reference: `AIRTIME_${Date.now()}`, payment_method: 'wallet',
+          description: `₦${this.airtimeAmount} ${this.selectedNetwork.toUpperCase()} airtime to ${this.phoneNumber}`
+        }]);
+
+        this.showNotification(`✅ Success! ₦${this.airtimeAmount} airtime sent to ${this.phoneNumber}`, 'success');
+        this.userBalance = newBalance;
+        document.getElementById('walletBalance').textContent = `₦${newBalance.toLocaleString()}`;
+        this.resetUI();
+
+      } else {
+        this.showNotification(`✅ Demo Mode: Purchase successful!`, 'success');
+        this.resetUI();
+      }
+    } catch (error) {
+      this.showNotification(`❌ Purchase failed: ${error.message}`, 'error');
+      btn.disabled = false;
+      btnText.textContent = `Pay ₦${this.airtimeAmount.toLocaleString()}`;
+      btnIcon.classList.remove('hidden');
+      btnLoader.classList.add('hidden');
+    }
   }
 
-  hamburger.addEventListener('click', toggleMenu);
-  overlay.addEventListener('click', toggleMenu);
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+    notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-2xl transform translate-x-full transition-transform duration-300 max-w-sm text-white ${colors[type]}`;
+    notification.innerHTML = `<div class="flex items-start space-x-3"><div class="flex-shrink-0 mt-0.5"><i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info'}" class="w-5 h-5"></i></div><div class="flex-1"><p class="text-sm font-semibold">${message}</p></div><button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 hover:bg-white/20 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button></div>`;
+    
+    document.body.appendChild(notification);
+    lucide.createIcons();
+    
+    setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new AirtimePurchaseManager();
+});
 </script>
-
 </body>
 </html>
