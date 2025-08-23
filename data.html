@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Xtreme-style Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: "class" }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col pb-20"> <!-- Added pb-20 for spacing -->
+  <!-- Top App Bar -->
+  <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div class="mx-auto max-w-screen-sm px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-lg bg-indigo-600 text-white grid place-items-center text-xs font-bold">XT</div>
+        <div class="leading-tight">
+          <!-- Dynamic username -->
+          <div class="font-semibold" id="userNameDisplay">Hi, Guest</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Welcome back 👋</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Notifications">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+        </button>
+        <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Toggle theme">
+          <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow">
+    <!-- Wallet Card -->
+    <section class="mx-auto max-w-screen-sm w-full px-4 pt-4">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg">
+        <div class="p-5 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm text-white/90">Wallet Balance</h2>
+            <h1 id="balance-display" class="text-3xl font-bold">₦0.00</h1>
+            <p class="text-[10px] mt-1 text-white/80">Wallet ID: XT-98F2-113</p>
+          </div>
+          <!-- FIX: Added id="fundWalletBtn" -->
+          <button id="fundWalletBtn" class="bg-white text-indigo-600 text-sm font-semibold px-4 py-2 rounded-xl shadow hover:bg-gray-100 transition">
+            Fund Wallet
+          </button>
+        </div>
+        <!-- Quick actions -->
+        <div class="px-3 pb-3">
+          <div class="grid grid-cols-3 gap-2">
+            <a href="deposit.html" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4"></i>
+              <span class="text-xs font-medium">Deposit</span>
+            </a>
+            <a href="#" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition">
+              <i data-lucide="arrow-up-circle" class="w-4 h-4"></i>
+              <span class="text-xs font-medium">Withdraw</span>
+            </a>
+            <a href="#" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span class="text-xs font-medium">Transfer</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services (compact tiles) -->
+    <section class="mx-auto max-w-screen-sm w-full px-4 mt-5">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Services</h2>
+        <a href="#" class="text-xs text-indigo-600 font-medium hover:underline">View all</a>
+      </div>
+      <div class="grid grid-cols-4 gap-3">
+        <!-- FIX: Added id="buyDataBtn" -->
+        <a href="buy-data.html" id="buyDataBtn" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="wifi" class="w-5 h-5 text-indigo-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Data</span>
+        </a>
+        <!-- FIX: Added id="buyAirtimeBtn" -->
+        <a href="buy-airtime.html" id="buyAirtimeBtn" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="smartphone" class="w-5 h-5 text-emerald-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Airtime</span>
+        </a>
+        <a href="cable.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="tv" class="w-5 h-5 text-yellow-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Cable</span>
+        </a>
+        <a href="electricity.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="zap" class="w-5 h-5 text-amber-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Electricity</span>
+        </a>
+        <a href="betting.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="trophy" class="w-5 h-5 text-purple-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Betting</span>
+        </a>
+        <a href="education.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="graduation-cap" class="w-5 h-5 text-blue-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Education</span>
+        </a>
+        <a href="recharge-card.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="ticket" class="w-5 h-5 text-rose-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">E-Pins</span>
+        </a>
+        <a href="more.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
+          <i data-lucide="grid" class="w-5 h-5 text-gray-600"></i>
+          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">More</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Promo / Info strip -->
+    <section class="mx-auto max-w-screen-sm w-full px-4 mt-5">
+      <div class="rounded-2xl border border-dashed border-indigo-300 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-200 px-4 py-3 flex items-center gap-3">
+        <i data-lucide="megaphone" class="w-5 h-5"></i>
+        <p class="text-xs">
+          Promo: Buy 10GB and get 500MB free. <a href="#" class="font-medium underline">Learn more</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Recent Transactions -->
+    <section class="mx-auto max-w-screen-sm w-full px-4 mt-5">
+      <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Recent Transactions</h2>
+      <ul id="transactions" class="space-y-2">
+        <li class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-center text-gray-700 dark:text-gray-300">
+          No transactions yet
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    <div class="mx-auto max-w-screen-sm grid grid-cols-4 gap-2 px-6 py-2 text-xs">
+      <a href="index.html" class="flex flex-col items-center text-indigo-600 font-medium py-1">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span>Home</span>
+      </a>
+      <a href="wallet.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 py-1">
+        <i data-lucide="wallet" class="w-5 h-5"></i>
+        <span>Wallet</span>
+      </a>
+      <a href="transactions.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 py-1">
+        <i data-lucide="receipt" class="w-5 h-5"></i>
+        <span>History</span>
+      </a>
+      <a href="profile.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 py-1">
+        <i data-lucide="user" class="w-5 h-5"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </nav>
+
+<script>
+  // --- THIS IS THE UPGRADED SCRIPT FOR THE DASHBOARD ---
+
+  // This function displays the user's first name in the header
+  function displayUsername(firstName) {
+    const userNameDisplay = document.getElementById("userNameDisplay");
+    // If a first name was found, display it. Otherwise, show "Guest".
+    if (firstName && userNameDisplay) {
+        userNameDisplay.textContent = `Hi, ${firstName}`;
+    } else {
+        userNameDisplay.textContent = "Hi, Guest";
+    }
+  }
+
+  // This function fetches the balance from the backend, using the email as the username
+  async function fetchAndUpdateBalance(username) {
+      if (!username) {
+          console.error("No username (email) found to fetch balance.");
+          document.getElementById('balance-display').innerText = '₦0.00';
+          return;
+      }
+      try {
+          const response = await fetch("http://127.0.0.1:8000/get_balance", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username: username })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                const balanceElement = document.getElementById('balance-display');
+                if (balanceElement) {
+                    balanceElement.innerText = `₦${parseFloat(data.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+            } else {
+                console.error("Failed to fetch balance:", data.detail);
+            }
+          } else {
+             const errorData = await response.json();
+             console.error("Backend error fetching balance:", errorData.detail);
+          }
+      } catch (error) {
+          console.error("An error occurred while fetching balance:", error);
+      }
+  }
+
+  // --- Initialize Page ---
+  // When the HTML document is fully loaded, run all the setup functions.
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Get BOTH pieces of user info from localStorage once.
+    const loggedInUsername = localStorage.getItem("username"); // This is the email, e.g., "john.doe@example.com"
+    const loggedInFirstName = localStorage.getItem("firstName"); // This is the name, e.g., "John"
+
+    // 2. Call the functions and give them the specific piece of info they need.
+    displayUsername(loggedInFirstName);    // The display function gets the first name.
+    fetchAndUpdateBalance(loggedInUsername); // The balance function gets the username (email).
+    
+    // Setup other things like icons and theme toggle
+    lucide.createIcons();
+    applyTheme();
+    // The transaction and other event listeners can be set up here if needed
+    // setupEventListeners(); 
+  });
+
+
+  // --- All other helper functions (no changes needed) ---
+  function applyTheme() {
+    const toggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    const saved = localStorage.getItem('xt_theme');
+    if (saved === 'dark') root.classList.add('dark');
+    if (saved === 'light') root.classList.remove('dark');
+    toggle.addEventListener('click', () => {
+      root.classList.toggle('dark');
+      localStorage.setItem('xt_theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit Funds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-sans">
+  <div class="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">Deposit Funds</h1>
+
+    <label class="block mb-2">Amount (₦)</label>
+    <input type="number" id="deposit-amount" class="w-full p-2 mb-4 border rounded-lg" placeholder="Enter amount">
+
+    <button id="pay-button" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold">
+      Pay Now
+    </button>
+  </div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+const username = localStorage.getItem("username");
+
+if(!username){
+    alert("User not logged in!");
+    window.location.href = "index.html";
+}
+
+document.getElementById("pay-button").addEventListener("click", () => {
+    const amount = parseFloat(document.getElementById("deposit-amount").value);
+    if(!amount || amount <= 0){
+        alert("Enter a valid amount");
+        return;
+    }
+
+    const handler = PaystackPop.setup({
+        key: "pk_test_5efae5ee5e1946d14c0fb9071f2c5ca2e6e8d17a", 
+        email: username.includes("@") ? username : "user@example.com",
+        amount: amount * 100,
+        currency: "NGN",
+        ref: `${Math.floor(Math.random() * 1000000000)}`,
+        // The callback function runs AFTER the payment is done
+        callback: function(response){
+            fetch("http://127.0.0.1:8000/verify_payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, reference: response.reference })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    // Removed the duplicate alert here
+                    alert(`₦${data.amount_paid} added to wallet!`);
+                    window.location.href = "data.html"; // Redirect to dashboard
+                } else {
+                    alert("Payment verification failed.");
+                }
+            });
+        },
+        onClose: function(){
+            alert('Transaction was cancelled.');
+        }
+    }); // <-- PaystackPop.setup({...}) configuration ends here
+
+    // Now, call openIframe() AFTER setting it up
+    handler.openIframe(); 
+});
+</script>
+
+
+    <main class="max-w-screen-sm mx-auto mt-6 p-4 space-y-4">
+    <!-- Recent Deposits -->
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow">
+      <h3 class="font-semibold mb-2">Recent Deposits</h3>
+      <ul id="recentDeposits" class="space-y-2 text-sm text-gray-700 dark:text-gray-200">
+        <li class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">No deposits yet</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    <div class="mx-auto max-w-screen-sm grid grid-cols-4 gap-2 px-6 py-2 text-xs">
+      <a href="data.html" class="flex flex-col items-center text-gray-500 hover:text-indigo-600">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span>Home</span>
+      </a>
+      <a href="wallet.html" class="flex flex-col items-center text-indigo-600 font-medium">
+        <i data-lucide="wallet" class="w-5 h-5"></i>
+        <span>Wallet</span>
+      </a>
+      <a href="transactions.html" class="flex flex-col items-center text-gray-500 hover:text-indigo-600">
+        <i data-lucide="receipt" class="w-5 h-5"></i>
+        <span>History</span>
+      </a>
+      <a href="profile.html" class="flex flex-col items-center text-gray-500 hover:text-indigo-600">
+        <i data-lucide="user" class="w-5 h-5"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </nav>
+
+</body>
+</html>
