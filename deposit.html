@@ -12,7 +12,7 @@
   <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
-  <!-- Header -->
+  <!-- Header and Main HTML remain the same -->
   <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
     <div class="mx-auto max-w-screen-sm px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -26,10 +26,7 @@
       </div>
     </div>
   </header>
-
-  <!-- Main Content -->
   <main class="max-w-screen-sm mx-auto p-4 space-y-4">
-    <!-- User Info Card -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
       <div class="flex items-center gap-3">
         <div class="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white grid place-items-center font-bold" id="userAvatar">?</div>
@@ -39,27 +36,16 @@
         </div>
       </div>
     </div>
-
-    <!-- Current Balance -->
     <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-4">
       <div class="text-sm opacity-90">Current Balance</div>
       <div class="text-2xl font-bold" id="currentBalance">₦0.00</div>
       <div class="text-xs opacity-75 mt-1">Available for spending</div>
     </div>
-
-    <!-- Deposit Form -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
       <h2 class="text-lg font-semibold mb-4">Add Money to Wallet</h2>
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Amount (₦)</label>
-        <input 
-          type="number" 
-          id="deposit-amount" 
-          class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
-          placeholder="Enter amount (minimum ₦100)"
-          min="100"
-        >
-        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum deposit: ₦100</div>
+        <input type="number" id="deposit-amount" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter amount (minimum ₦100)" min="100">
       </div>
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Quick amounts</label>
@@ -70,33 +56,20 @@
           <button class="quick-amount bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-sm py-2 rounded-lg font-medium" data-amount="5000">₦5,000</button>
         </div>
       </div>
-      <button 
-        id="pay-button" 
-        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <button id="pay-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
         <i data-lucide="credit-card" class="w-4 h-4"></i>
         <span>Pay with Paystack</span>
-        <div class="loading hidden">
-          <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
-        </div>
+        <div class="loading hidden"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i></div>
       </button>
     </div>
-
-    <!-- Recent Deposits -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
       <h3 class="font-semibold mb-3">Recent Deposits</h3>
       <ul id="recentDeposits" class="space-y-2">
-        <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">
-          Loading deposits...
-        </li>
+        <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">Loading deposits...</li>
       </ul>
     </div>
   </main>
-
-  <!-- Bottom Nav -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-    <!-- Nav links... -->
-  </nav>
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"><!-- Bottom Nav --></nav>
 
 <script>
 // --- SUPABASE & PAYSTACK SETUP ---
@@ -113,9 +86,7 @@ class DepositManager {
     this.initialize();
   }
 
-  // --- MODIFIED: The new entry point for the page ---
   async initialize() {
-    // 1. Authenticate with Supabase
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       alert("Authentication session expired. Please sign in again.");
@@ -123,13 +94,11 @@ class DepositManager {
       return;
     }
     this.supabaseUser = user;
-    console.log("✅ Authenticated Supabase user:", this.supabaseUser.email);
+    console.log("✅ Authenticated Supabase user:", this.supabaseUser.id);
 
-    // 2. Load the user profile from localStorage
     this.loadLocalUserData();
-    if (!this.localUserData) return; // Stop if local data is missing
+    if (!this.localUserData) return;
 
-    // 3. Setup the rest of the page
     this.initializeUI();
     this.setupEventListeners();
   }
@@ -139,26 +108,22 @@ class DepositManager {
       const storedData = localStorage.getItem("userData");
       if (storedData) {
         this.localUserData = JSON.parse(storedData);
-        console.log("✅ Local user data loaded:", this.localUserData);
       } else {
         alert("Could not find user data. Please sign in again.");
         window.location.href = "signin.html";
       }
     } catch (error) {
-      console.error("❌ Error loading user data:", error);
       alert("Session is corrupted. Please sign in again.");
       window.location.href = "signin.html";
     }
   }
 
   async initializeUI() {
-    // Update user info from localStorage
     const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
     document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
     document.getElementById('userName').textContent = `${this.localUserData.firstName || ''} ${this.localUserData.lastName || ''}`.trim() || 'User';
     document.getElementById('userEmail').textContent = this.localUserData.email || '';
 
-    // Load financial data from Supabase
     await this.loadCurrentBalance();
     await this.loadRecentDeposits();
 
@@ -174,41 +139,36 @@ class DepositManager {
     document.getElementById('pay-button').addEventListener('click', () => this.initiatePayment());
   }
 
-  // --- MODIFIED: Now uses the authenticated user ID ---
   async loadCurrentBalance() {
     try {
-      // Use the authenticated user's ID for the query
+      // --- FIXED: Query by 'id' instead of 'email' ---
       const { data, error } = await supabase
         .from('user_profiles')
         .select('balance')
-        .eq('id', this.supabaseUser.id) // Using the secure, authenticated ID
+        .eq('id', this.supabaseUser.id) // Use the secure, authenticated ID
         .single();
 
       if (error) throw error;
       
-      console.log("✅ Balance loaded from database:", data.balance);
       this.updateBalanceDisplay(data.balance || 0);
 
     } catch (error) {
       console.error("❌ Balance loading error:", error);
-      this.updateBalanceDisplay(0); // Show 0 on error
+      this.updateBalanceDisplay(0);
     }
   }
 
   updateBalanceDisplay(balance) {
-    const balanceElement = document.getElementById('currentBalance');
-    balanceElement.textContent = `₦${parseFloat(balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('currentBalance').textContent = `₦${parseFloat(balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
-  // --- MODIFIED: Now uses the authenticated user email ---
   async loadRecentDeposits() {
     const depositsContainer = document.getElementById('recentDeposits');
     try {
-      // Use the authenticated user's email for the query
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
-        .eq('user_email', this.supabaseUser.email) // Using the secure, authenticated email
+        .eq('user_email', this.supabaseUser.email)
         .eq('type', 'deposit')
         .order('created_at', { ascending: false })
         .limit(5);
@@ -216,9 +176,17 @@ class DepositManager {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        depositsContainer.innerHTML = data.map(tx => `...`).join(''); // Your existing template is fine
+        depositsContainer.innerHTML = data.map(tx => `
+          <li class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div>
+              <div class="font-medium">₦${parseFloat(tx.amount).toLocaleString()}</div>
+              <div class="text-xs text-gray-500">${new Date(tx.created_at).toLocaleDateString()}</div>
+            </div>
+            <div class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Success</div>
+          </li>
+        `).join('');
       } else {
-        depositsContainer.innerHTML = `<li class="p-3 ...">No deposits yet</li>`;
+        depositsContainer.innerHTML = `<li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">No deposits yet</li>`;
       }
     } catch (error) {
       console.error("❌ Error loading deposits:", error);
@@ -232,37 +200,25 @@ class DepositManager {
       alert("Please enter a valid amount (minimum ₦100)");
       return;
     }
-
-    // Use the authenticated user's email from Supabase
-    const userEmail = this.supabaseUser.email;
-
     const payButton = document.getElementById('pay-button');
     payButton.disabled = true;
     payButton.querySelector('.loading').classList.remove('hidden');
     
     const handler = PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
-      email: userEmail,
+      email: this.supabaseUser.email,
       amount: amount * 100,
       ref: `XT_${Date.now()}`,
-      callback: (response) => {
-        console.log("✅ Payment successful:", response);
-        this.verifyPaymentAndUpdateBalance(response.reference, amount);
-      },
-      onClose: () => {
-        console.log("❌ Payment cancelled");
-        this.resetPayButton();
-      }
+      callback: (response) => this.verifyPayment(response.reference, amount),
+      onClose: () => this.resetPayButton(),
     });
     handler.openIframe();
   }
 
-  // --- MODIFIED: Renamed and now uses authenticated user ---
-  async verifyPaymentAndUpdateBalance(reference, amount) {
-    console.log("🔍 Verifying payment and updating balance for:", this.supabaseUser.email);
-
+  async verifyPayment(reference, amount) {
+    console.log("🔍 Verifying payment and updating balance for:", this.supabaseUser.id);
     try {
-      // Step 1: Fetch current profile to get latest balance
+      // --- FIXED: Query by 'id' instead of 'email' ---
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('balance')
@@ -274,32 +230,25 @@ class DepositManager {
       const currentBalance = parseFloat(profileData.balance || 0);
       const newBalance = currentBalance + amount;
 
-      // Step 2: Update user balance
+      // --- FIXED: Update by 'id' instead of 'email' ---
       const { error: updateError } = await supabase
         .from('user_profiles')
-        .update({ balance: newBalance })
+        .update({ balance: newBalance, updated_at: new Date().toISOString() })
         .eq('id', this.supabaseUser.id); // Securely update using ID
       
       if (updateError) throw new Error("Could not update user balance.");
 
-      // Step 3: Record the transaction for history
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert([{
-          user_email: this.supabaseUser.email,
-          type: 'deposit',
-          amount: amount,
-          status: 'completed',
-          reference: reference,
-          payment_method: 'paystack'
-        }]);
+      const { error: transactionError } = await supabase.from('transactions').insert([{
+        user_email: this.supabaseUser.email,
+        type: 'deposit',
+        amount: amount,
+        status: 'completed',
+        reference: reference,
+        payment_method: 'paystack'
+      }]);
 
-      if (transactionError) {
-        // This is not fatal, but should be logged. The user has been credited.
-        console.warn("⚠️ Failed to record transaction:", transactionError);
-      }
+      if (transactionError) console.warn("⚠️ Failed to record transaction:", transactionError);
 
-      // Step 4: Success!
       alert(`✅ Payment successful! ₦${amount.toLocaleString()} added.`);
       this.updateBalanceDisplay(newBalance);
       this.loadRecentDeposits();
@@ -320,11 +269,7 @@ class DepositManager {
   }
 }
 
-// Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
-  if (PAYSTACK_PUBLIC_KEY === 'YOUR_PAYSTACK_PUBLIC_KEY') {
-    alert('CRITICAL: Paystack Public Key is not set. Payments will not work.');
-  }
   new DepositManager();
 });
 </script>
