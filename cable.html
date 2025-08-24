@@ -24,13 +24,13 @@
   body { background-color: var(--color-background); color: var(--color-text-primary); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
   .header-nav { background-color: white; border-bottom: 1px solid var(--color-border); box-shadow: var(--shadow-md); }
   .dark .header-nav { background-color: #111827; }
-  .section-card { background-color: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow-md); transition: all 0.2s ease-in-out; }
+  .section-card { background-color: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow-md); }
   .dark .section-card { background-color: var(--color-primary-light); }
   .horizontal-scroll-container { display: flex; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
   .horizontal-scroll-container::-webkit-scrollbar { display: none; }
   .provider-card { flex-shrink: 0; width: 140px; padding: 1rem; border: 2px solid var(--color-border); border-radius: 1rem; transition: all 0.2s ease-in-out; cursor:pointer; }
   .provider-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); transform: scale(1.05); }
-  .provider-logo { width: 48px; height: 48px; object-fit: contain; }
+  .provider-logo { width: 48px; height: 48px; object-fit: contain; border-radius: 0.5rem; }
   .plan-card { border: 2px solid var(--color-border); border-radius: 1rem; padding: 1rem; transition: all 0.2s ease-in-out; cursor: pointer; position: relative; }
   .plan-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); box-shadow: var(--shadow-interactive); }
   .checkmark-icon { position: absolute; top: 8px; right: 8px; background-color: var(--color-primary); color: white; border-radius: 99px; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; }
@@ -52,7 +52,7 @@
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-3">
           <a href="data.html" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-          <h1 class="text-lg font-bold">Cable TV</h1>
+          <h1 class="text-lg font-bold">Cable TV Subscription</h1>
         </div>
         <div class="flex items-center space-x-4">
           <div class="text-right">
@@ -68,18 +68,18 @@
   <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     <!-- Provider Selection -->
     <section class="section-card">
-      <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="tv" class="w-5 h-5"></i></div>Select Provider</h2>
+      <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 flex items-center justify-center"><i data-lucide="tv" class="w-5 h-5"></i></div>Select Provider</h2>
       <div class="horizontal-scroll-container space-x-4"></div>
     </section>
 
     <!-- Details Section -->
     <div id="detailsSection" class="space-y-6 hidden">
       <section class="section-card">
-        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="contact" class="w-5 h-5"></i></div>Decoder Details</h2>
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center"><i data-lucide="contact" class="w-5 h-5"></i></div>Decoder Details</h2>
         <div class="space-y-4">
           <div>
-            <label for="smartcardNumber" class="text-sm font-medium text-slate-600 dark:text-slate-300">Smartcard / IUC Number</label>
-            <input type="number" id="smartcardNumber" placeholder="Enter your decoder number" class="elegant-input w-full text-lg font-medium mt-1">
+            <label for="smartcardNumber" class="text-sm font-medium text-slate-600 dark:text-slate-300 block mb-1">Smartcard / IUC Number</label>
+            <input type="number" id="smartcardNumber" placeholder="Enter your decoder number" class="elegant-input w-full text-lg font-medium">
           </div>
           <button id="verifyBtn" class="btn-primary w-full" disabled>
             <span>Verify Details</span>
@@ -89,7 +89,7 @@
             <div class="text-sm text-green-800 dark:text-green-300">Customer Name</div>
             <div id="customerName" class="font-bold text-green-900 dark:text-green-200"></div>
           </div>
-          <div id="verificationError" class="hidden mt-4 text-sm text-red-600"></div>
+          <div id="verificationError" class="hidden mt-4 text-sm text-center text-red-600"></div>
         </div>
       </section>
     </div>
@@ -97,14 +97,30 @@
     <!-- Plans Section -->
     <div id="plansSection" class="space-y-6 hidden">
       <section class="section-card">
-        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="package" class="w-5 h-5"></i></div>Choose Bouquet</h2>
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center"><i data-lucide="package" class="w-5 h-5"></i></div>Choose Bouquet</h2>
         <div id="cablePlans" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
       </section>
     </div>
     
     <!-- Summary & Purchase -->
     <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
-      <!-- Summary Card... -->
+        <section class="section-card">
+            <h3 class="text-lg font-bold mb-4">Summary</h3>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-slate-500">Provider</span><span id="summaryProvider" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Smartcard</span><span id="summarySmartcard" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Customer</span><span id="summaryCustomer" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Bouquet</span><span id="summaryPlan" class="font-semibold">-</span></div>
+                <hr class="border-dashed border-slate-200 dark:border-slate-700 my-2">
+                <div class="flex justify-between items-center text-lg"><span class="font-bold">Total</span><span id="summaryAmount" class="font-bold text-2xl text-blue-600 dark:text-blue-400">₦0</span></div>
+            </div>
+        </section>
+        <div class="text-center">
+            <button id="purchaseBtn" class="btn-primary w-full max-w-sm mx-auto text-base">
+                <span>Pay Now</span>
+                <span class="loading w-5 h-5 ml-2 hidden"></span>
+            </button>
+        </div>
     </div>
   </main>
 
@@ -113,21 +129,17 @@
 const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-function applyDarkMode() { /* ... */ } // Standard dark mode logic
+
+function applyDarkMode() {
+  const isDarkMode = localStorage.getItem('xt_theme') === 'dark';
+  document.documentElement.classList.toggle('dark', isDarkMode);
+}
 window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') applyDarkMode(); });
 applyDarkMode();
 
 // --- DATA FOR CABLE TV ---
-const cableProviders = [
-  { id: 'dstv', name: 'DSTV', logo: 'https://seeklogo.com/images/D/dstv-logo-B05C2B4713-seeklogo.com.png' },
-  { id: 'gotv', name: 'GOtv', logo: 'https://seeklogo.com/images/G/gotv-logo-304E60376A-seeklogo.com.png' },
-  { id: 'startimes', name: 'Startimes', logo: 'https://seeklogo.com/images/S/startimes-logo-A2534924A8-seeklogo.com.png' }
-];
-const cablePlans = {
-  dstv: [ { name: 'Padi', price: 2150 }, { name: 'Yanga', price: 3500 }, { name: 'Confam', price: 6200 }, { name: 'Compact', price: 10500 } ],
-  gotv: [ { name: 'Smallie', price: 1100 }, { name: 'Jinja', price: 2250 }, { name: 'Jolli', price: 3300 }, { name: 'Max', price: 4850 } ],
-  startimes: [ { name: 'Nova', price: 1200 }, { name: 'Basic', price: 2100 }, { name: 'Smart', price: 2800 }, { name: 'Classic', price: 3100 } ]
-};
+const cableProviders = [ { id: 'dstv', name: 'DSTV', logo: `<rect width="100" height="100" fill="#0033A0"/><text x="50" y="60" font-family="Verdana, sans-serif" font-size="40" font-weight="bold" fill="white" text-anchor="middle">DStv</text>` }, { id: 'gotv', name: 'GOtv', logo: `<rect width="100" height="100" fill="#E30613"/><text x="50" y="65" font-family="Verdana, sans-serif" font-size="40" font-weight="bold" fill="white" text-anchor="middle">GOtv</text>` }, { id: 'startimes', name: 'Startimes', logo: `<rect width="100" height="100" fill="#ED1C24"/><text x="50" y="55" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">StarTimes</text><path fill="yellow" d="M50 65 L55 80 L40 70 L60 70 L45 80 Z" />` } ];
+const cablePlans = { dstv: [ { name: 'Padi', price: 2900 }, { name: 'Yanga', price: 5100 }, { name: 'Confam', price: 7400 }, { name: 'Compact', price: 15700 } ], gotv: [ { name: 'Smallie', price: 1300 }, { name: 'Jinja', price: 2800 }, { name: 'Jolli', price: 3950 }, { name: 'Max', price: 5700 } ], startimes: [ { name: 'Nova', price: 1500 }, { name: 'Basic', price: 2600 }, { name: 'Smart', price: 3500 } ] };
 
 class CablePurchaseManager {
   constructor() {
@@ -141,24 +153,46 @@ class CablePurchaseManager {
     this.initialize();
   }
 
-  async initialize() { /* ... Standard authentication and setup ... */ }
-  loadLocalUserData() { /* ... Standard localStorage loading ... */ }
+  async initialize() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("Authentication session expired. Please sign in again.");
+      window.location.href = "signin.html";
+      return;
+    }
+    this.supabaseUser = user;
+    this.loadLocalUserData();
+    if (!this.localUserData) return;
+    await this.initializeUI();
+    this.setupEventListeners();
+  }
+
+  loadLocalUserData() {
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (!storedData) throw new Error("No local data");
+      this.localUserData = JSON.parse(storedData);
+    } catch (error) {
+      alert("Session is corrupted. Please sign in again.");
+      window.location.href = "signin.html";
+    }
+  }
   
   async initializeUI() {
     const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
     document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
-    
     this.renderProviderCards();
     await this.loadWalletBalance();
     lucide.createIcons();
   }
   
-  // Renders the DSTV, GOtv, etc. cards
   renderProviderCards() {
     const container = document.querySelector('.horizontal-scroll-container');
     container.innerHTML = cableProviders.map(p => `
       <div class="provider-card text-center space-y-2" data-provider="${p.id}">
-        <div class="flex justify-center"><img src="${p.logo}" alt="${p.name}" class="provider-logo"/></div>
+        <div class="flex justify-center">
+          <svg class="provider-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${p.logo}</svg>
+        </div>
         <div class="font-semibold text-sm">${p.name}</div>
       </div>
     `).join('');
@@ -172,19 +206,17 @@ class CablePurchaseManager {
       card.classList.add('selected');
       this.selectedProvider = card.dataset.provider;
       document.getElementById('detailsSection').classList.remove('hidden');
-      this.resetVerificationAndPlans(); // Reset if user changes provider
+      this.resetVerificationAndPlans();
     });
     
     document.getElementById('smartcardNumber').addEventListener('input', (e) => {
       this.smartcardNumber = e.target.value.replace(/\D/g, '');
-      document.getElementById('verifyBtn').disabled = this.smartcardNumber.length < 10;
+      document.getElementById('verifyBtn').disabled = this.smartcardNumber.length < 8;
     });
 
     document.getElementById('verifyBtn').addEventListener('click', () => this.handleVerifyDetails());
-    document.getElementById('cablePlans').addEventListener('click', (e) => this.handlePlanSelection(e));
   }
   
-  // Simulate verifying the smartcard number
   async handleVerifyDetails() {
     const verifyBtn = document.getElementById('verifyBtn');
     const spinner = verifyBtn.querySelector('.loading');
@@ -196,17 +228,14 @@ class CablePurchaseManager {
     resultDiv.classList.add('hidden');
     errorDiv.classList.add('hidden');
 
-    // --- SIMULATION ---
-    // In a real app, you would make an API call to your payment gateway here
-    // to verify the smartcard number and get the customer's name.
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    if (this.smartcardNumber === '0000000000') { // Simulate a failure
+    if (this.smartcardNumber.length < 10 || this.smartcardNumber === '0000000000') {
       this.verifiedCustomerName = null;
       errorDiv.textContent = 'Invalid Smartcard/IUC Number.';
       errorDiv.classList.remove('hidden');
-    } else { // Simulate a success
-      this.verifiedCustomerName = "John Doe"; // Fake name
+    } else {
+      this.verifiedCustomerName = "Glory Fagbamila";
       document.getElementById('customerName').textContent = this.verifiedCustomerName;
       resultDiv.classList.remove('hidden');
       document.getElementById('plansSection').classList.remove('hidden');
@@ -227,28 +256,65 @@ class CablePurchaseManager {
         <div class="font-bold text-lg text-blue-600 dark:text-blue-400 mt-1">₦${plan.price.toLocaleString()}</div>
       </div>
     `).join('');
+    
+    plansContainer.querySelectorAll('.plan-card').forEach(card => {
+        card.addEventListener('click', () => this.handlePlanSelection(card));
+    });
     lucide.createIcons();
   }
 
-  handlePlanSelection(e) {
-    const card = e.target.closest('.plan-card');
-    if (!card) return;
+  handlePlanSelection(card) {
     document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     this.selectedPlan = JSON.parse(card.dataset.plan);
-    this.updateSummary(); // This will create and show the summary section
+    this.updateSummary();
   }
 
   updateSummary() {
-    // Dynamically create summary if it doesn't exist
-    let summarySection = document.getElementById('summarySection');
-    summarySection.innerHTML = `...`; // Your summary HTML
+    const summarySection = document.getElementById('summarySection');
+    document.getElementById('summaryProvider').textContent = this.selectedProvider.toUpperCase();
+    document.getElementById('summarySmartcard').textContent = this.smartcardNumber;
+    document.getElementById('summaryCustomer').textContent = this.verifiedCustomerName;
+    document.getElementById('summaryPlan').textContent = this.selectedPlan.name;
+    document.getElementById('summaryAmount').textContent = `₦${this.selectedPlan.price.toLocaleString()}`;
     summarySection.classList.remove('hidden');
-    // ... update fields
-    document.getElementById('summaryPurchaseBtn').addEventListener('click', () => this.processPurchase());
+    document.getElementById('purchaseBtn').addEventListener('click', () => this.processPurchase());
   }
   
-  async processPurchase() { /* ... Similar to data/airtime purchase ... */ }
+  async processPurchase() {
+    if (this.selectedPlan.price > this.userBalance) {
+      alert("Insufficient balance.");
+      return;
+    }
+    const purchaseBtn = document.getElementById('purchaseBtn');
+    const spinner = purchaseBtn.querySelector('.loading');
+    purchaseBtn.disabled = true;
+    spinner.classList.remove('hidden');
+
+    try {
+      const newBalance = this.userBalance - this.selectedPlan.price;
+      const { error: updateError } = await supabase.from('user_profiles').update({ balance: newBalance }).eq('id', this.supabaseUser.id);
+      if (updateError) throw updateError;
+      
+      await supabase.from('transactions').insert([{
+        user_email: this.supabaseUser.email, type: 'purchase', amount: this.selectedPlan.price,
+        status: 'completed', payment_method: 'wallet',
+        description: `${this.selectedProvider.toUpperCase()} (${this.selectedPlan.name}) for ${this.smartcardNumber}`
+      }]);
+
+      alert("Subscription successful!");
+      this.userBalance = newBalance;
+      this.updateBalanceDisplay(newBalance);
+      this.resetUI();
+
+    } catch (error) {
+      console.error("❌ Purchase failed:", error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      purchaseBtn.disabled = false;
+      spinner.classList.add('hidden');
+    }
+  }
 
   resetVerificationAndPlans() {
     this.verifiedCustomerName = null;
@@ -257,9 +323,31 @@ class CablePurchaseManager {
     document.getElementById('verificationError').classList.add('hidden');
     document.getElementById('plansSection').classList.add('hidden');
     document.getElementById('summarySection').classList.add('hidden');
+    document.getElementById('smartcardNumber').value = '';
+    document.getElementById('verifyBtn').disabled = true;
+  }
+  
+  resetUI() {
+    this.resetVerificationAndPlans();
+    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('detailsSection').classList.add('hidden');
   }
 
-  async loadWalletBalance() { /* ... Your correct load wallet balance logic ... */ }
+  async loadWalletBalance() {
+    try {
+      const { data, error } = await supabase.from('user_profiles').select('balance').eq('id', this.supabaseUser.id).single();
+      if (error) throw error;
+      this.userBalance = data ? parseFloat(data.balance) : 0;
+      this.updateBalanceDisplay(this.userBalance);
+    } catch (error) {
+      console.error("❌ Error loading balance:", error);
+      document.getElementById('walletBalance').textContent = 'Error';
+    }
+  }
+  
+  updateBalanceDisplay(balance) {
+    document.getElementById('walletBalance').textContent = `₦${parseFloat(balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
