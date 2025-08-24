@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cable TV Subscription - ExTremeData</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+  /* --- PROFESSIONAL DESIGN SYSTEM (Complete) --- */
+  :root {
+    --color-primary: #2563EB; --color-primary-hover: #1D4ED8; --color-primary-light: #EFF6FF;
+    --color-text-primary: #1E293B; --color-text-secondary: #64748B; --color-border: #E2E8F0;
+    --color-background: #F8FAFC; --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-interactive: 0 0 0 4px rgb(59 130 246 / 0.25);
+  }
+  .dark {
+    --color-primary: #3B82F6; --color-primary-hover: #60A5FA; --color-primary-light: #1F2937;
+    --color-text-primary: #F8FAFC; --color-text-secondary: #94A3B8; --color-border: #334155;
+    --color-background: #0F172A;
+  }
+  body { background-color: var(--color-background); color: var(--color-text-primary); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  .header-nav { background-color: white; border-bottom: 1px solid var(--color-border); box-shadow: var(--shadow-md); }
+  .dark .header-nav { background-color: #111827; }
+  .section-card { background-color: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow-md); transition: all 0.2s ease-in-out; }
+  .dark .section-card { background-color: var(--color-primary-light); }
+  .horizontal-scroll-container { display: flex; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
+  .horizontal-scroll-container::-webkit-scrollbar { display: none; }
+  .provider-card { flex-shrink: 0; width: 140px; padding: 1rem; border: 2px solid var(--color-border); border-radius: 1rem; transition: all 0.2s ease-in-out; cursor:pointer; }
+  .provider-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); transform: scale(1.05); }
+  .provider-logo { width: 48px; height: 48px; object-fit: contain; }
+  .plan-card { border: 2px solid var(--color-border); border-radius: 1rem; padding: 1rem; transition: all 0.2s ease-in-out; cursor: pointer; position: relative; }
+  .plan-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); box-shadow: var(--shadow-interactive); }
+  .checkmark-icon { position: absolute; top: 8px; right: 8px; background-color: var(--color-primary); color: white; border-radius: 99px; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; }
+  .plan-card.selected .checkmark-icon { display: flex; }
+  .elegant-input { background-color: var(--color-background); border: 2px solid var(--color-border); border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.2s ease-in-out; }
+  .elegant-input:focus { border-color: var(--color-primary); box-shadow: var(--shadow-interactive); outline: none; }
+  .btn-primary { background-color: var(--color-primary); color: white; border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-weight: 600; transition: all 0.2s ease-in-out; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; }
+  .btn-primary:hover:not(:disabled) { background-color: var(--color-primary-hover); transform: translateY(-1px); }
+  .btn-primary:disabled { background-color: #94A3B8; cursor: not-allowed; box-shadow: none; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .loading { animation: spin 1s linear infinite; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <!-- Navigation -->
+  <nav class="header-nav sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-3">
+          <a href="data.html" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+          <h1 class="text-lg font-bold">Cable TV</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right">
+            <div class="text-xs text-slate-500 dark:text-slate-400">Balance</div>
+            <div id="walletBalance" class="font-bold text-lg">Loading...</div>
+          </div>
+          <div id="userAvatar" class="w-10 h-10 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center font-bold text-sm">?</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <!-- Provider Selection -->
+    <section class="section-card">
+      <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="tv" class="w-5 h-5"></i></div>Select Provider</h2>
+      <div class="horizontal-scroll-container space-x-4"></div>
+    </section>
+
+    <!-- Details Section -->
+    <div id="detailsSection" class="space-y-6 hidden">
+      <section class="section-card">
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="contact" class="w-5 h-5"></i></div>Decoder Details</h2>
+        <div class="space-y-4">
+          <div>
+            <label for="smartcardNumber" class="text-sm font-medium text-slate-600 dark:text-slate-300">Smartcard / IUC Number</label>
+            <input type="number" id="smartcardNumber" placeholder="Enter your decoder number" class="elegant-input w-full text-lg font-medium mt-1">
+          </div>
+          <button id="verifyBtn" class="btn-primary w-full" disabled>
+            <span>Verify Details</span>
+            <span class="loading w-5 h-5 ml-2 hidden"></span>
+          </button>
+          <div id="verificationResult" class="hidden mt-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-800 text-center">
+            <div class="text-sm text-green-800 dark:text-green-300">Customer Name</div>
+            <div id="customerName" class="font-bold text-green-900 dark:text-green-200"></div>
+          </div>
+          <div id="verificationError" class="hidden mt-4 text-sm text-red-600"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Plans Section -->
+    <div id="plansSection" class="space-y-6 hidden">
+      <section class="section-card">
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="package" class="w-5 h-5"></i></div>Choose Bouquet</h2>
+        <div id="cablePlans" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+      </section>
+    </div>
+    
+    <!-- Summary & Purchase -->
+    <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
+      <!-- Summary Card... -->
+    </div>
+  </main>
+
+<script>
+// --- SUPABASE & DARK MODE SETUP ---
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function applyDarkMode() { /* ... */ } // Standard dark mode logic
+window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') applyDarkMode(); });
+applyDarkMode();
+
+// --- DATA FOR CABLE TV ---
+const cableProviders = [
+  { id: 'dstv', name: 'DSTV', logo: 'https://seeklogo.com/images/D/dstv-logo-B05C2B4713-seeklogo.com.png' },
+  { id: 'gotv', name: 'GOtv', logo: 'https://seeklogo.com/images/G/gotv-logo-304E60376A-seeklogo.com.png' },
+  { id: 'startimes', name: 'Startimes', logo: 'https://seeklogo.com/images/S/startimes-logo-A2534924A8-seeklogo.com.png' }
+];
+const cablePlans = {
+  dstv: [ { name: 'Padi', price: 2150 }, { name: 'Yanga', price: 3500 }, { name: 'Confam', price: 6200 }, { name: 'Compact', price: 10500 } ],
+  gotv: [ { name: 'Smallie', price: 1100 }, { name: 'Jinja', price: 2250 }, { name: 'Jolli', price: 3300 }, { name: 'Max', price: 4850 } ],
+  startimes: [ { name: 'Nova', price: 1200 }, { name: 'Basic', price: 2100 }, { name: 'Smart', price: 2800 }, { name: 'Classic', price: 3100 } ]
+};
+
+class CablePurchaseManager {
+  constructor() {
+    this.localUserData = null;
+    this.supabaseUser = null;
+    this.userBalance = 0;
+    this.selectedProvider = null;
+    this.smartcardNumber = '';
+    this.verifiedCustomerName = null;
+    this.selectedPlan = null;
+    this.initialize();
+  }
+
+  async initialize() { /* ... Standard authentication and setup ... */ }
+  loadLocalUserData() { /* ... Standard localStorage loading ... */ }
+  
+  async initializeUI() {
+    const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
+    document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
+    
+    this.renderProviderCards();
+    await this.loadWalletBalance();
+    lucide.createIcons();
+  }
+  
+  // Renders the DSTV, GOtv, etc. cards
+  renderProviderCards() {
+    const container = document.querySelector('.horizontal-scroll-container');
+    container.innerHTML = cableProviders.map(p => `
+      <div class="provider-card text-center space-y-2" data-provider="${p.id}">
+        <div class="flex justify-center"><img src="${p.logo}" alt="${p.name}" class="provider-logo"/></div>
+        <div class="font-semibold text-sm">${p.name}</div>
+      </div>
+    `).join('');
+  }
+
+  setupEventListeners() {
+    document.querySelector('.horizontal-scroll-container').addEventListener('click', (e) => {
+      const card = e.target.closest('.provider-card');
+      if (!card) return;
+      document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      this.selectedProvider = card.dataset.provider;
+      document.getElementById('detailsSection').classList.remove('hidden');
+      this.resetVerificationAndPlans(); // Reset if user changes provider
+    });
+    
+    document.getElementById('smartcardNumber').addEventListener('input', (e) => {
+      this.smartcardNumber = e.target.value.replace(/\D/g, '');
+      document.getElementById('verifyBtn').disabled = this.smartcardNumber.length < 10;
+    });
+
+    document.getElementById('verifyBtn').addEventListener('click', () => this.handleVerifyDetails());
+    document.getElementById('cablePlans').addEventListener('click', (e) => this.handlePlanSelection(e));
+  }
+  
+  // Simulate verifying the smartcard number
+  async handleVerifyDetails() {
+    const verifyBtn = document.getElementById('verifyBtn');
+    const spinner = verifyBtn.querySelector('.loading');
+    const resultDiv = document.getElementById('verificationResult');
+    const errorDiv = document.getElementById('verificationError');
+    
+    verifyBtn.disabled = true;
+    spinner.classList.remove('hidden');
+    resultDiv.classList.add('hidden');
+    errorDiv.classList.add('hidden');
+
+    // --- SIMULATION ---
+    // In a real app, you would make an API call to your payment gateway here
+    // to verify the smartcard number and get the customer's name.
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+
+    if (this.smartcardNumber === '0000000000') { // Simulate a failure
+      this.verifiedCustomerName = null;
+      errorDiv.textContent = 'Invalid Smartcard/IUC Number.';
+      errorDiv.classList.remove('hidden');
+    } else { // Simulate a success
+      this.verifiedCustomerName = "John Doe"; // Fake name
+      document.getElementById('customerName').textContent = this.verifiedCustomerName;
+      resultDiv.classList.remove('hidden');
+      document.getElementById('plansSection').classList.remove('hidden');
+      this.loadPlans();
+    }
+    
+    verifyBtn.disabled = false;
+    spinner.classList.add('hidden');
+  }
+
+  loadPlans() {
+    const plansContainer = document.getElementById('cablePlans');
+    const plans = cablePlans[this.selectedProvider] || [];
+    plansContainer.innerHTML = plans.map(plan => `
+      <div class="plan-card" data-plan='${JSON.stringify(plan)}'>
+        <div class="checkmark-icon"><i data-lucide="check" class="w-4 h-4"></i></div>
+        <div class="font-bold text-lg">${plan.name}</div>
+        <div class="font-bold text-lg text-blue-600 dark:text-blue-400 mt-1">₦${plan.price.toLocaleString()}</div>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  }
+
+  handlePlanSelection(e) {
+    const card = e.target.closest('.plan-card');
+    if (!card) return;
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    this.selectedPlan = JSON.parse(card.dataset.plan);
+    this.updateSummary(); // This will create and show the summary section
+  }
+
+  updateSummary() {
+    // Dynamically create summary if it doesn't exist
+    let summarySection = document.getElementById('summarySection');
+    summarySection.innerHTML = `...`; // Your summary HTML
+    summarySection.classList.remove('hidden');
+    // ... update fields
+    document.getElementById('summaryPurchaseBtn').addEventListener('click', () => this.processPurchase());
+  }
+  
+  async processPurchase() { /* ... Similar to data/airtime purchase ... */ }
+
+  resetVerificationAndPlans() {
+    this.verifiedCustomerName = null;
+    this.selectedPlan = null;
+    document.getElementById('verificationResult').classList.add('hidden');
+    document.getElementById('verificationError').classList.add('hidden');
+    document.getElementById('plansSection').classList.add('hidden');
+    document.getElementById('summarySection').classList.add('hidden');
+  }
+
+  async loadWalletBalance() { /* ... Your correct load wallet balance logic ... */ }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new CablePurchaseManager();
+});
+</script>
+</body>
+</html>
