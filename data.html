@@ -9,7 +9,6 @@
     tailwind.config = { darkMode: "class" }
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Supabase JS for fetching user data -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col pb-20">
@@ -19,35 +18,26 @@
       <div class="flex items-center gap-2">
         <div class="h-8 w-8 rounded-lg bg-indigo-600 text-white grid place-items-center text-xs font-bold">XT</div>
         <div class="leading-tight">
-          <!-- Dynamic username -->
           <div class="font-semibold" id="userNameDisplay">Hi, Guest</div>
-          <div class="text-xs text-gray-500 dark:text-gray-400" id="welcomeMessage">Welcome back 👋</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Welcome back 👋</div>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Notifications">
-          <i data-lucide="bell" class="w-5 h-5"></i>
-        </button>
-        <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Toggle theme">
-          <i data-lucide="moon" class="w-5 h-5"></i>
-        </button>
-        <button id="logoutBtn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500" title="Logout">
-          <i data-lucide="log-out" class="w-5 h-5"></i>
-        </button>
+        <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Notifications"><i data-lucide="bell" class="w-5 h-5"></i></button>
+        <button id="themeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" title="Toggle theme"><i data-lucide="moon" class="w-5 h-5"></i></button>
+        <button id="logoutBtn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500" title="Logout"><i data-lucide="log-out" class="w-5 h-5"></i></button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="flex-grow">
-    <!-- User Profile Card (New) -->
+    <!-- User Profile Card -->
     <section class="mx-auto max-w-screen-sm w-full px-4 pt-4">
       <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 mb-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="h-12 w-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white grid place-items-center font-bold text-lg" id="userAvatar">
-              ?
-            </div>
+            <div class="h-12 w-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white grid place-items-center font-bold text-lg" id="userAvatar">?</div>
             <div>
               <div class="font-semibold text-gray-900 dark:text-gray-100" id="fullUserName">Loading...</div>
               <div class="text-sm text-gray-500 dark:text-gray-400" id="userEmail">Loading...</div>
@@ -67,83 +57,46 @@
       <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg">
         <div class="p-5 flex items-center justify-between">
           <div>
-            <h2 class="text-sm text-white/90">Wallet Coming Live</h2>
-            <h1 id="balance" class="text-3xl font-bold">SOON</h1>
+            <h2 class="text-sm text-white/90">Wallet Balance</h2>
+            <!-- FIXED: Changed id from "balance" to "balance-display" to match the script -->
+            <h1 id="balance-display" class="text-3xl font-bold">Loading...</h1>
             <p class="text-[10px] mt-1 text-white/80">Wallet ID: <span id="walletId">XT-LOADING</span></p>
           </div>
-          <button id="fundWalletBtn" class="bg-white text-indigo-600 text-sm font-semibold px-4 py-2 rounded-xl shadow hover:bg-gray-100 transition">
-            Fund Wallet
-          </button>
+          <a href="deposit.html" class="bg-white text-indigo-600 text-sm font-semibold px-4 py-2 rounded-xl shadow hover:bg-gray-100 transition">Fund Wallet</a>
         </div>
-        <!-- Quick actions -->
         <div class="px-3 pb-3">
           <div class="grid grid-cols-3 gap-2">
-            <a href="deposit.html" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition">
-              <i data-lucide="wallet" class="w-4 h-4"></i>
-              <span class="text-xs font-medium">Wallet</span>
-            </a>
-            <a href="#" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition">
-              <i data-lucide="arrow-up-circle" class="w-4 h-4"></i>
-              <span class="text-xs font-medium">Withdraw</span>
-            </a>
-            <a href="#" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition">
-              <i data-lucide="send" class="w-4 h-4"></i>
-              <span class="text-xs font-medium">Transfer</span>
-            </a>
+            <a href="deposit.html" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition"><i data-lucide="wallet" class="w-4 h-4"></i><span class="text-xs font-medium">Wallet</span></a>
+            <a href="#" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition"><i data-lucide="arrow-up-circle" class="w-4 h-4"></i><span class="text-xs font-medium">Withdraw</span></a>
+            <a href="#" class="group flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/20 transition"><i data-lucide="send" class="w-4 h-4"></i><span class="text-xs font-medium">Transfer</span></a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Services (compact tiles) -->
+    <!-- Services -->
     <section class="mx-auto max-w-screen-sm w-full px-4 mt-5">
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Services</h2>
         <a href="#" class="text-xs text-indigo-600 font-medium hover:underline">View all</a>
       </div>
       <div class="grid grid-cols-4 gap-3">
-        <a href="data-topup.html" id="buyDataBtn" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="wifi" class="w-5 h-5 text-indigo-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Data</span>
-        </a>
-        <a href="buy-airtime.html" id="buyAirtimeBtn" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="smartphone" class="w-5 h-5 text-emerald-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Airtime</span>
-        </a>
-        <a href="cable.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="tv" class="w-5 h-5 text-yellow-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Cable</span>
-        </a>
-        <a href="electricity.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="zap" class="w-5 h-5 text-amber-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Electricity</span>
-        </a>
-        <a href="betting.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="trophy" class="w-5 h-5 text-purple-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Betting</span>
-        </a>
-        <a href="education.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="graduation-cap" class="w-5 h-5 text-blue-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">Education</span>
-        </a>
-        <a href="recharge-card.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="ticket" class="w-5 h-5 text-rose-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">E-Pins</span>
-        </a>
-        <a href="more.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 hover:shadow transition p-3 flex flex-col items-center text-center">
-          <i data-lucide="grid" class="w-5 h-5 text-gray-600"></i>
-          <span class="mt-1 text-[11px] font-medium text-gray-700 dark:text-gray-300">More</span>
-        </a>
+        <a href="data-topup.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 flex flex-col items-center text-center"><i data-lucide="wifi" class="w-5 h-5 text-indigo-600"></i><span class="mt-1 text-[11px] font-medium">Data</span></a>
+        <a href="buy-airtime.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 flex flex-col items-center text-center"><i data-lucide="smartphone" class="w-5 h-5 text-emerald-600"></i><span class="mt-1 text-[11px] font-medium">Airtime</span></a>
+        <a href="cable.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 flex flex-col items-center text-center"><i data-lucide="tv" class="w-5 h-5 text-yellow-600"></i><span class="mt-1 text-[11px] font-medium">Cable</span></a>
+        <a href="electricity.html" class="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 flex flex-col items-center text-center"><i data-lucide="zap" class="w-5 h-5 text-amber-600"></i><span class="mt-1 text-[11px] font-medium">Electricity</span></a>
+        <a href="#" class="group rounded-2xl bg-white dark:bg-gray-800 border p-3 flex flex-col items-center text-center"><i data-lucide="trophy" class="w-5 h-5 text-purple-600"></i><span class="mt-1 text-[11px] font-medium">Betting</span></a>
+        <a href="#" class="group rounded-2xl bg-white dark:bg-gray-800 border p-3 flex flex-col items-center text-center"><i data-lucide="graduation-cap" class="w-5 h-5 text-blue-600"></i><span class="mt-1 text-[11px] font-medium">Education</span></a>
+        <a href="#" class="group rounded-2xl bg-white dark:bg-gray-800 border p-3 flex flex-col items-center text-center"><i data-lucide="ticket" class="w-5 h-5 text-rose-600"></i><span class="mt-1 text-[11px] font-medium">E-Pins</span></a>
+        <a href="#" class="group rounded-2xl bg-white dark:bg-gray-800 border p-3 flex flex-col items-center text-center"><i data-lucide="grid" class="w-5 h-5 text-gray-600"></i><span class="mt-1 text-[11px] font-medium">More</span></a>
       </div>
     </section>
 
-    <!-- Promo / Info strip -->
+    <!-- Promo Strip -->
     <section class="mx-auto max-w-screen-sm w-full px-4 mt-5">
       <div class="rounded-2xl border border-dashed border-indigo-300 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-200 px-4 py-3 flex items-center gap-3">
         <i data-lucide="megaphone" class="w-5 h-5"></i>
-        <p class="text-xs">
-          Promo: Buy 10GB and get 500MB free. <a href="#" class="font-medium underline">Learn more</a>
-        </p>
+        <p class="text-xs">Promo: Buy 10GB and get 500MB free. <a href="#" class="font-medium underline">Learn more</a></p>
       </div>
     </section>
 
@@ -151,450 +104,187 @@
     <section class="mx-auto max-w-screen-sm w-full px-4 mt-5">
       <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Recent Transactions</h2>
       <ul id="transactions" class="space-y-2">
-        <li class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-center text-gray-700 dark:text-gray-300">
-          No transactions yet
-        </li>
+        <li class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-center text-gray-700 dark:text-gray-300">Loading transactions...</li>
       </ul>
     </section>
   </main>
 
   <!-- Bottom Tab Bar -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-    <div class="mx-auto max-w-screen-sm grid grid-cols-4 gap-2 px-6 py-2 text-xs">
-      <a href="data.html" class="flex flex-col items-center text-indigo-600 font-medium py-1">
-        <i data-lucide="home" class="w-5 h-5"></i>
-        <span>Home</span>
-      </a>
-      <a href="deposit.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 py-1">
-        <i data-lucide="wallet" class="w-5 h-5"></i>
-        <span>Wallet</span>
-      </a>
-      <a href="transactions.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 py-1">
-        <i data-lucide="receipt" class="w-5 h-5"></i>
-        <span>History</span>
-      </a>
-      <a href="profile.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 py-1">
-        <i data-lucide="user" class="w-5 h-5"></i>
-        <span>Profile</span>
-      </a>
+     <div class="mx-auto max-w-screen-sm grid grid-cols-4 gap-2 px-6 py-2 text-xs">
+      <a href="data.html" class="flex flex-col items-center text-indigo-600 font-medium py-1"><i data-lucide="home" class="w-5 h-5"></i><span>Home</span></a>
+      <a href="deposit.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 py-1"><i data-lucide="wallet" class="w-5 h-5"></i><span>Wallet</span></a>
+      <a href="#" class="flex flex-col items-center text-gray-500 dark:text-gray-400 py-1"><i data-lucide="receipt" class="w-5 h-5"></i><span>History</span></a>
+      <a href="#" class="flex flex-col items-center text-gray-500 dark:text-gray-400 py-1"><i data-lucide="user" class="w-5 h-5"></i><span>Profile</span></a>
     </div>
   </nav>
 
 <script>
-// 🔥 REPLACE WITH YOUR SUPABASE CREDENTIALS (same as registration page)
-const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co'  
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw'  
+// --- SUPABASE & DARK MODE SETUP ---
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Initialize Supabase client (only if configured)
-let supabase = null;
-if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function applyDarkMode() {
+  const isDarkMode = localStorage.getItem('xt_theme') === 'dark';
+  document.documentElement.classList.toggle('dark', isDarkMode);
 }
+window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') applyDarkMode(); });
+applyDarkMode();
 
-// User data management
-class UserDataManager {
+class DashboardManager {
   constructor() {
-    this.userData = null;
-    this.loadUserData();
+    this.localUserData = null;
+    this.supabaseUser = null;
+    this.initialize();
   }
 
-  // Load user data from localStorage (browser storage)
-  loadUserData() {
-    try {
-      // Try multiple possible keys where registration data might be stored
-      const possibleKeys = ['userData', 'registeredUser', 'userProfile', 'signupData'];
-      let foundData = null;
-
-      for (const key of possibleKeys) {
-        const storedData = localStorage.getItem(key);
-        if (storedData) {
-          try {
-            foundData = JSON.parse(storedData);
-            console.log(`✅ User data found in localStorage key '${key}':`, foundData);
-            break;
-          } catch (e) {
-            console.log(`⚠ Invalid JSON in ${key}:`, storedData);
-          }
-        }
-      }
-
-      if (foundData) {
-        this.userData = foundData;
-      } else {
-        // Also check individual fields that might be stored separately
-        const firstName = localStorage.getItem('firstName');
-        const lastName = localStorage.getItem('lastName');
-        const email = localStorage.getItem('email');
-        const plan = localStorage.getItem('plan');
-
-        if (firstName || lastName || email) {
-          this.userData = {
-            firstName: firstName || '',
-            lastName: lastName || '',
-            email: email || '',
-            plan: plan || 'starter'
-          };
-          console.log('✅ User data reconstructed from individual localStorage items:', this.userData);
-        } else {
-          console.log("⚠ No user data found in localStorage");
-          this.handleNoUserData();
-        }
-      }
-    } catch (error) {
-      console.error("❌ Error loading user data:", error);
-      this.handleNoUserData();
+  async initialize() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("Authentication session not found. Please sign in.");
+      window.location.href = "signin.html";
+      return;
     }
-  }
+    this.supabaseUser = user;
+    
+    this.loadLocalUserData();
+    if (!this.localUserData) return;
 
-  // Handle case where no user data is found
-  handleNoUserData() {
-    console.log("🚪 No user data found - redirecting to registration");
-    // Show a message and redirect after a short delay
-    const userNameDisplay = document.getElementById("userNameDisplay");
-    const welcomeMessage = document.getElementById("welcomeMessage");
-    
-    if (userNameDisplay) userNameDisplay.textContent = "Please sign up";
-    if (welcomeMessage) welcomeMessage.textContent = "Redirecting...";
-    
-    // Redirect to registration page after 2 seconds
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 2000);
-  }
-
-  // Get user's initials for avatar
-  getInitials() {
-    if (!this.userData) return '?';
-    
-    const firstName = this.userData.firstName || '';
-    const lastName = this.userData.lastName || '';
-    
-    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || '?';
-  }
-
-  // Get full name
-  getFullName() {
-    if (!this.userData) return 'Guest User';
-    
-    return `${this.userData.firstName || ''} ${this.userData.lastName || ''}`.trim() || 'Guest User';
-  }
-
-  // Get formatted plan name
-  getFormattedPlan() {
-    if (!this.userData || !this.userData.plan) return 'Starter Plan';
-    
-    const planMap = {
-      'starter': 'Starter — Free',
-      'pro': 'Pro — ₦5,000/mo',
-      'business': 'Business — ₦25,000/mo'
-    };
-    
-    return planMap[this.userData.plan] || 'Starter Plan';
-  }
-
-  // Generate wallet ID based on email
-  generateWalletId() {
-    if (!this.userData || !this.userData.email) return 'XT-GUEST-001';
-    
-    // Create a simple hash from email for wallet ID
-    let hash = 0;
-    for (let i = 0; i < this.userData.email.length; i++) {
-      const char = this.userData.email.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    
-    const walletNum = Math.abs(hash % 10000).toString().padStart(4, '0');
-    return `XT-${walletNum}`;
-  }
-}
-
-// Dashboard UI Manager
-class DashboardUI {
-  constructor(userManager) {
-    this.userManager = userManager;
-    this.initializeUI();
-  }
-
-  initializeUI() {
-    this.displayUserInfo();
-    this.displayWalletInfo();
+    await this.setupUI();
     this.setupEventListeners();
   }
 
-  displayUserInfo() {
-    const userData = this.userManager.userData;
-    
-    // Update header - FIXED THE SYNTAX ERROR HERE
-    const userNameDisplay = document.getElementById("userNameDisplay");
-    const welcomeMessage = document.getElementById("welcomeMessage");
-    
-    if (userData && userData.firstName) {
-      userNameDisplay.textContent = "Hi, " + userData.firstName;
-      welcomeMessage.textContent = "Welcome back 👋";
-    } else {
-      userNameDisplay.textContent = "Hi, Guest";
-      welcomeMessage.textContent = "Please sign in";
+  loadLocalUserData() {
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) {
+        this.localUserData = JSON.parse(storedData);
+      } else {
+        this.handleLogout(true);
+      }
+    } catch (error) {
+      this.handleLogout(true);
     }
+  }
 
-    // Update profile card
-    document.getElementById("userAvatar").textContent = this.userManager.getInitials();
-    document.getElementById("fullUserName").textContent = this.userManager.getFullName();
-    document.getElementById("userEmail").textContent = userData?.email || 'No email';
-    document.getElementById("userPlan").textContent = this.userManager.getFormattedPlan();
-    
-    // Set join date (you can get this from Supabase later)
-    const joinDate = new Date().toLocaleDateString('en-US', { 
-      month: 'short', 
-      year: 'numeric' 
-    });
+  async setupUI() {
+    this.displayStaticInfo();
+    await this.fetchAndDisplayProfileData();
+    await this.fetchAndDisplayTransactions();
+    lucide.createIcons();
+    this.setupTheme();
+  }
+
+  displayStaticInfo() {
+    document.getElementById('userNameDisplay').textContent = `Hi, ${this.localUserData.firstName || 'User'}`;
+    const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
+    document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
+    document.getElementById('fullUserName').textContent = `${this.localUserData.firstName || ''} ${this.localUserData.lastName || ''}`.trim();
+    document.getElementById('userEmail').textContent = this.supabaseUser.email;
+    document.getElementById('walletId').textContent = `XT-${this.supabaseUser.id.slice(0, 8).toUpperCase()}`;
+    const joinDate = new Date(this.supabaseUser.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
     document.getElementById("joinDate").textContent = joinDate;
   }
 
-  displayWalletInfo() {
-    // Generate wallet ID
-    const walletId = this.userManager.generateWalletId();
-    document.getElementById("walletId").textContent = walletId;
-
-    // Load real balance from Supabase
-    this.loadRealBalance();
-  }
-
-  // Load real balance from Supabase or localStorage
-  async loadRealBalance() {
-    // First check for updated balance in localStorage
-    const storedBalance = localStorage.getItem('userBalance');
-    if (storedBalance !== null) {
-      const balance = parseFloat(storedBalance);
-      if (!isNaN(balance)) {
-        this.updateBalance(balance);
-        return;
-      }
-    }
-
-    // Check Supabase for real user balance
-    if (supabase) {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data, error } = await supabase
-            .from('user_profiles')
-            .select('balance')
-            .eq('id', user.id)
-            .single();
-
-          if (data && !error) {
-            const balance = data.balance || 0;
-            this.updateBalance(balance);
-            // Store in localStorage for offline use
-            localStorage.setItem('userBalance', balance.toString());
-            return;
-          }
-        }
-      } catch (error) {
-        console.log("Supabase balance fetch failed:", error);
-      }
-    }
-
-    // Fallback: start with zero balance for new users
-    this.updateBalance(0);
-  }
-
-  updateBalance(amount) {
-    const balanceElement = document.getElementById('balance-display');
-    if (balanceElement) {
-      balanceElement.textContent = `₦${amount.toLocaleString('en-US', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-      })}`;
-    }
-    // Store updated balance in localStorage
-    localStorage.setItem('userBalance', amount.toString());
-  }
-
-  // Method to refresh balance (can be called from other pages)
-  async refreshBalance() {
-    await this.loadRealBalance();
-  }
-
-  setupEventListeners() {
-    // Logout button
-    const logoutBtn = document.getElementById('logoutBtn');
-    logoutBtn?.addEventListener('click', () => {
-      this.handleLogout();
-    });
-
-    // Fund wallet button
-    const fundWalletBtn = document.getElementById('fundWalletBtn');
-    fundWalletBtn?.addEventListener('click', () => {
-      alert('Fund wallet feature coming soon!');
-    });
-  }
-
-  handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-      // Clear all user-related localStorage data
-      const keysToRemove = [
-        'userData', 'registeredUser', 'userProfile', 'signupData',
-        'firstName', 'lastName', 'email', 'plan', 'userBalance'
-      ];
-      
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(key);
-      });
-      
-      // If using Supabase, also sign out
-      if (supabase) {
-        supabase.auth.signOut();
-      }
-      
-      console.log('🚪 User logged out successfully');
-      
-      // Redirect to registration page
-      window.location.href = 'signin.html';
-    }
-  }
-}
-
-// Theme management
-function setupTheme() {
-  const toggle = document.getElementById('themeToggle');
-  const root = document.documentElement;
-  
-  // Get saved theme from localStorage
-  const savedTheme = localStorage.getItem('xt_theme') || 'light';
-  
-  if (savedTheme === 'dark') root.classList.add('dark');
-  if (savedTheme === 'light') root.classList.remove('dark');
-  
-  toggle?.addEventListener('click', () => {
-    root.classList.toggle('dark');
-    const newTheme = root.classList.contains('dark') ? 'dark' : 'light';
-localStorage.setItem('xt_theme', newTheme);
-  });
-}
-
-// Initialize everything when page loads
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 X-TrameData Dashboard Loading...');
-  
-  // Check if user is logged in before initializing
-  if (!window.isUserLoggedIn()) {
-    console.log('⚠ User not logged in, redirecting...');
-    window.location.href = 'index.html';
-    return;
-  }
-  
-  // Initialize managers
-  const userManager = new UserDataManager();
-  const dashboardUI = new DashboardUI(userManager);
-  
-  // Make dashboardUI globally accessible for other pages
-  window.dashboardUI = dashboardUI;
-
-// Setup other features
-  setupTheme();
-  
-  // Initialize Lucide icons
-  setTimeout(() => {
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
-  }, 100);
-
-  // Listen for balance updates from other pages
-  window.addEventListener('balanceUpdated', (event) => {
-    console.log('💰 Balance updated:', event.detail.newBalance);
-    dashboardUI.updateBalance(event.detail.newBalance);
-  });
-
-  // Refresh balance when page becomes visible (user returns from deposit page)
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      console.log('👁 Page is visible, refreshing balance...');
-      dashboardUI.refreshBalance();
-    }
-  });
-  
-  console.log('✅ Dashboard loaded successfully');
-});
-
-//Optional: Advanced balance fetching with Supabase
-async function fetchRealBalance() {
-  if (!supabase) {
-    console.log('⚠ Supabase not configured - using demo balance');
-    return;
-  }
-
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      // You can fetch real balance from your database here
-      console.log('👤 Authenticated user:', user.email);
-      
-      // Example: Fetch from user_profiles table
+  async fetchAndDisplayProfileData() {
+    try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('balance')
-        .eq('id', user.id)
+        .select('balance, plan')
+        .eq('id', this.supabaseUser.id)
         .single();
 
-      if (data && !error) {
-        dashboardUI.updateBalance(data.balance || 0);
-      }
+      if (error) throw error;
+      
+      const balance = data ? data.balance : 0;
+      document.getElementById('balance-display').textContent = `₦${parseFloat(balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      
+      const planMap = { 'starter': 'Starter — Free', 'pro': 'Pro — ₦5,000/mo', 'business': 'Business — ₦25,000/mo' };
+      document.getElementById("userPlan").textContent = planMap[data.plan] || 'Starter Plan';
+
+    } catch (error) {
+      console.error("❌ Error fetching profile data:", error);
+      document.getElementById('balance-display').textContent = 'Error';
+      document.getElementById('userPlan').textContent = 'Error';
     }
-  } catch (error) {
-    console.error('Error fetching real balance:', error);
+  }
+
+  async fetchAndDisplayTransactions() {
+    const container = document.getElementById('transactions');
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_email', this.supabaseUser.email)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        container.innerHTML = data.map(tx => this.createTransactionTile(tx)).join('');
+      } else {
+        container.innerHTML = `<li class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-center text-gray-700 dark:text-gray-300">No recent transactions</li>`;
+      }
+    } catch (error) {
+      console.error("❌ Error fetching transactions:", error);
+      container.innerHTML = `<li class="p-3 bg-white dark:bg-gray-800 rounded-lg text-sm text-center text-red-500">Could not load transactions</li>`;
+    }
+    lucide.createIcons();
+  }
+
+  createTransactionTile(tx) {
+    const isDeposit = tx.type === 'deposit';
+    const amountClass = isDeposit ? 'text-green-600' : 'text-red-500';
+    const amountSign = isDeposit ? '+' : '-';
+    const icon = isDeposit ? 'arrow-down-circle' : 'arrow-up-circle';
+
+    return `
+      <li class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 grid place-items-center">
+            <i data-lucide="${icon}" class="w-4 h-4 ${amountClass}"></i>
+          </div>
+          <div>
+            <div class="font-medium text-sm">${tx.description || 'Transaction'}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${new Date(tx.created_at).toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="font-bold text-sm ${amountClass}">${amountSign}₦${parseFloat(tx.amount).toLocaleString()}</div>
+      </li>
+    `;
+  }
+  
+  setupEventListeners() {
+    document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
+  }
+  
+  async handleLogout(isForced = false) {
+    if (!isForced && !confirm('Are you sure you want to logout?')) return;
+    
+    await supabase.auth.signOut();
+    localStorage.removeItem('userData');
+    localStorage.removeItem('xt_theme');
+    window.location.href = 'signin.html';
+  }
+  
+  setupTheme() {
+    const toggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('xt_theme');
+    if (savedTheme === 'dark') root.classList.add('dark');
+    
+    toggle?.addEventListener('click', () => {
+      root.classList.toggle('dark');
+      localStorage.setItem('xt_theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
   }
 }
-//Global functions for balance management
-window.updateUserBalance = function(newBalance) {
-  console.log(`💰 Updating balance to: ₦${newBalance}`);
-  localStorage.setItem('userBalance', newBalance.toString());
-  
-  // Update dashboard if it exists
-  if (window.dashboardUI) {
-    window.dashboardUI.updateBalance(newBalance);
-  }
-  
-  // Dispatch custom event
-  window.dispatchEvent(new CustomEvent('balanceUpdated', {
-    detail: { newBalance: newBalance }
-  }));
-};
-//Function to add funds (for deposit page to call)
-window.addFunds = function(amount) {
-  const storedBalance = localStorage.getItem('userBalance');
-  const currentBalance = storedBalance ? parseFloat(storedBalance) : 0;
-  const newBalance = currentBalance + amount;
-  window.updateUserBalance(newBalance);
-  
-  console.log(`💸 Added ₦${amount}. New balance: ₦${newBalance}`);
-  return newBalance;
-};
-//Function to check if user is logged in
-window.isUserLoggedIn = function() {
-  const userData = localStorage.getItem('userData') || 
-                   localStorage.getItem('registeredUser') ||
-                   localStorage.getItem('firstName');
-  return userData !== null;
-};
 
-// Demo function to simulate user registration data
-function setDemoUser() {
-  window.registeredUser = {
-    firstName: "Alex",
-    lastName: "Johnson", 
-    email: "alex.johnson@example.com",
-    plan: "pro"
-  };
-  // Set initial demo balance
-  window.userBalance = 2500.75;
-}
-
-// Call demo function for testing
-setDemoUser();
+document.addEventListener('DOMContentLoaded', () => {
+  new DashboardManager();
+});
 </script>
 </body>
 </html>
