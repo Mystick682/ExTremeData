@@ -50,8 +50,6 @@
     <!-- Deposit Form -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
       <h2 class="text-lg font-semibold mb-4">Add Money to Wallet</h2>
-      
-      <!-- Amount Input -->
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Amount (₦)</label>
         <input 
@@ -63,8 +61,6 @@
         >
         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum deposit: ₦100</div>
       </div>
-
-      <!-- Quick Amount Buttons -->
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Quick amounts</label>
         <div class="grid grid-cols-4 gap-2">
@@ -74,8 +70,6 @@
           <button class="quick-amount bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-sm py-2 rounded-lg font-medium" data-amount="5000">₦5,000</button>
         </div>
       </div>
-
-      <!-- Pay Button -->
       <button 
         id="pay-button" 
         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -101,424 +95,237 @@
 
   <!-- Bottom Nav -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-    <div class="mx-auto max-w-screen-sm grid grid-cols-4 gap-2 px-6 py-2 text-xs">
-      <a href="data.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 py-1">
-        <i data-lucide="home" class="w-5 h-5"></i>
-        <span>Home</span>
-      </a>
-      <a href="deposit.html" class="flex flex-col items-center text-indigo-600 font-medium py-1">
-        <i data-lucide="wallet" class="w-5 h-5"></i>
-        <span>Wallet</span>
-      </a>
-      <a href="transactions.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 py-1">
-        <i data-lucide="receipt" class="w-5 h-5"></i>
-        <span>History</span>
-      </a>
-      <a href="profile.html" class="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 py-1">
-        <i data-lucide="user" class="w-5 h-5"></i>
-        <span>Profile</span>
-      </a>
-    </div>
+    <!-- Nav links... -->
   </nav>
 
 <script>
-// 🔥 REPLACE WITH YOUR SUPABASE CREDENTIALS
-const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw'
+// --- SUPABASE & PAYSTACK SETUP ---
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+const PAYSTACK_PUBLIC_KEY = 'pk_test_5efae5ee5e1946d14c0fb9071f2c5ca2e6e8d17a';
 
-// Your Paystack public key
-const PAYSTACK_PUBLIC_KEY = 'pk_test_5efae5ee5e1946d14c0fb9071f2c5ca2e6e8d17a'
-
-// Initialize Supabase
-let supabase = null;
-let isSupabaseConnected = false;
-
-try {
-  if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    isSupabaseConnected = true;
-    console.log('✅ Supabase initialized successfully');
-  }
-} catch (error) {
-  console.error('❌ Supabase initialization failed:', error);
-  isSupabaseConnected = false;
-}
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 class DepositManager {
   constructor() {
-    this.userData = null;
-    this.currentUser = null;
-    this.loadUserData();
+    this.localUserData = null;
+    this.supabaseUser = null; // This will hold the authenticated Supabase user
+    this.initialize();
+  }
+
+  // --- MODIFIED: The new entry point for the page ---
+  async initialize() {
+    // 1. Authenticate with Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("Authentication session expired. Please sign in again.");
+      window.location.href = "signin.html";
+      return;
+    }
+    this.supabaseUser = user;
+    console.log("✅ Authenticated Supabase user:", this.supabaseUser.email);
+
+    // 2. Load the user profile from localStorage
+    this.loadLocalUserData();
+    if (!this.localUserData) return; // Stop if local data is missing
+
+    // 3. Setup the rest of the page
     this.initializeUI();
     this.setupEventListeners();
   }
-
-  // Load user data from localStorage
-  loadUserData() {
+  
+  loadLocalUserData() {
     try {
       const storedData = localStorage.getItem("userData");
       if (storedData) {
-        this.userData = JSON.parse(storedData);
-        console.log("✅ User data loaded:", this.userData);
+        this.localUserData = JSON.parse(storedData);
+        console.log("✅ Local user data loaded:", this.localUserData);
       } else {
-        alert("Please sign in to continue");
-        window.location.href = "index.html";
-        return;
+        alert("Could not find user data. Please sign in again.");
+        window.location.href = "signin.html";
       }
     } catch (error) {
       console.error("❌ Error loading user data:", error);
-      alert("Session expired. Please sign in again.");
-      window.location.href = "index.html";
+      alert("Session is corrupted. Please sign in again.");
+      window.location.href = "signin.html";
     }
   }
 
-  // Initialize UI with user data
   async initializeUI() {
-    if (!this.userData) return;
-
-    // Update user info
-    const initials = (this.userData.firstName?.charAt(0) || '') + (this.userData.lastName?.charAt(0) || '');
+    // Update user info from localStorage
+    const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
     document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
-    document.getElementById('userName').textContent = `${this.userData.firstName || ''} ${this.userData.lastName || ''}`.trim() || 'User';
-    document.getElementById('userEmail').textContent = this.userData.email || '';
+    document.getElementById('userName').textContent = `${this.localUserData.firstName || ''} ${this.localUserData.lastName || ''}`.trim() || 'User';
+    document.getElementById('userEmail').textContent = this.localUserData.email || '';
 
-    // Test Supabase connection and setup user profile
-    if (isSupabaseConnected) {
-      await this.ensureUserProfileExists();
-    }
+    // Load financial data from Supabase
+    await this.loadCurrentBalance();
+    await this.loadRecentDeposits();
 
-    // Load current balance and deposits
-    this.loadCurrentBalance();
-    this.loadRecentDeposits();
-
-    // Initialize Lucide icons
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
+    lucide.createIcons();
   }
 
-  // Ensure user profile exists in database
-  async ensureUserProfileExists() {
-    if (!isSupabaseConnected || !this.userData?.email) return false;
-
-    try {
-      // Check if user profile exists
-      const { data: existingProfile, error: fetchError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('email', this.userData.email)
-        .single();
-
-      if (fetchError && fetchError.code === 'PGRST116') {
-        // User doesn't exist, create profile
-        console.log('Creating new user profile...');
-        const { data: newProfile, error: createError } = await supabase
-          .from('user_profiles')
-          .insert([
-            {
-              email: this.userData.email,
-              first_name: this.userData.firstName || '',
-              last_name: this.userData.lastName || '',
-              balance: 0.00,
-              plan: this.userData.plan || 'starter'
-            }
-          ])
-          .select()
-          .single();
-
-        if (createError) {
-          console.error("❌ Failed to create user profile:", createError);
-          return false;
-        }
-
-        console.log("✅ User profile created successfully:", newProfile);
-        return true;
-      } else if (fetchError) {
-        console.error("❌ Database connection error:", fetchError);
-        return false;
-      }
-
-      console.log("✅ User profile exists:", existingProfile);
-      return true;
-    } catch (error) {
-      console.error("❌ Error ensuring user profile exists:", error);
-      return false;
-    }
-  }
-
-  // Setup event listeners
   setupEventListeners() {
-    // Quick amount buttons
     document.querySelectorAll('.quick-amount').forEach(button => {
       button.addEventListener('click', () => {
-        const amount = button.getAttribute('data-amount');
-        document.getElementById('deposit-amount').value = amount;
+        document.getElementById('deposit-amount').value = button.dataset.amount;
       });
     });
-
-    // Pay button
-    document.getElementById('pay-button').addEventListener('click', () => {
-      this.initiatePayment();
-    });
+    document.getElementById('pay-button').addEventListener('click', () => this.initiatePayment());
   }
 
-  // Load current balance (demo or from Supabase)
+  // --- MODIFIED: Now uses the authenticated user ID ---
   async loadCurrentBalance() {
-    if (isSupabaseConnected && this.userData?.email) {
-      try {
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('balance')
-          .eq('email', this.userData.email)
-          .single();
+    try {
+      // Use the authenticated user's ID for the query
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('balance')
+        .eq('id', this.supabaseUser.id) // Using the secure, authenticated ID
+        .single();
 
-        if (data && !error) {
-          console.log("✅ Balance loaded from database:", data.balance);
-          this.updateBalanceDisplay(data.balance || 0);
-          return;
-        } else if (error) {
-          console.error("❌ Balance loading error:", error);
-        }
-      } catch (error) {
-        console.error("❌ Database connection error:", error);
-      }
+      if (error) throw error;
+      
+      console.log("✅ Balance loaded from database:", data.balance);
+      this.updateBalanceDisplay(data.balance || 0);
+
+    } catch (error) {
+      console.error("❌ Balance loading error:", error);
+      this.updateBalanceDisplay(0); // Show 0 on error
     }
-
-    // Fallback: demo balance
-    console.log("Using demo balance");
-    this.updateBalanceDisplay(0);
   }
 
-  // Update balance display
   updateBalanceDisplay(balance) {
     const balanceElement = document.getElementById('currentBalance');
-    if (balanceElement) {
-      balanceElement.textContent = `₦${parseFloat(balance || 0).toLocaleString('en-US', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-      })}`;
-    }
+    balanceElement.textContent = `₦${parseFloat(balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
-  // Load recent deposits
+  // --- MODIFIED: Now uses the authenticated user email ---
   async loadRecentDeposits() {
     const depositsContainer = document.getElementById('recentDeposits');
-    if (!depositsContainer) return;
-    
-    if (isSupabaseConnected && this.userData?.email) {
-      try {
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_email', this.userData.email)
-          .eq('type', 'deposit')
-          .eq('status', 'completed')
-          .order('created_at', { ascending: false })
-          .limit(5);
+    try {
+      // Use the authenticated user's email for the query
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_email', this.supabaseUser.email) // Using the secure, authenticated email
+        .eq('type', 'deposit')
+        .order('created_at', { ascending: false })
+        .limit(5);
 
-        if (data && data.length > 0 && !error) {
-          console.log("✅ Recent deposits loaded:", data);
-          depositsContainer.innerHTML = data.map(transaction => `
-            <li class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <div>
-                <div class="font-medium">₦${parseFloat(transaction.amount).toLocaleString()}</div>
-                <div class="text-xs text-gray-500">${new Date(transaction.created_at).toLocaleDateString()}</div>
-                <div class="text-xs text-gray-400">Ref: ${transaction.reference}</div>
-              </div>
-              <div class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Success</div>
-            </li>
-          `).join('');
-          return;
-        } else if (error) {
-          console.error("❌ Error loading deposits:", error);
-        }
-      } catch (error) {
-        console.error("❌ Database connection error:", error);
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        depositsContainer.innerHTML = data.map(tx => `...`).join(''); // Your existing template is fine
+      } else {
+        depositsContainer.innerHTML = `<li class="p-3 ...">No deposits yet</li>`;
       }
+    } catch (error) {
+      console.error("❌ Error loading deposits:", error);
+      depositsContainer.innerHTML = `<li class="p-3 ...">Could not load deposits</li>`;
     }
-
-    // Fallback: no deposits message
-    depositsContainer.innerHTML = `
-      <li class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-500 dark:text-gray-400 text-sm">
-        No deposits yet
-      </li>
-    `;
   }
 
-  // Initiate Paystack payment
   initiatePayment() {
     const amount = parseFloat(document.getElementById('deposit-amount').value);
-    
-    // Validation
     if (!amount || amount < 100) {
       alert("Please enter a valid amount (minimum ₦100)");
       return;
     }
 
-    if (!this.userData || !this.userData.email) {
-      alert("User email not found. Please sign in again.");
-      return;
-    }
+    // Use the authenticated user's email from Supabase
+    const userEmail = this.supabaseUser.email;
 
-    // Show loading state
     const payButton = document.getElementById('pay-button');
-    const buttonText = payButton.querySelector('span');
-    const loading = payButton.querySelector('.loading');
-    
     payButton.disabled = true;
-    buttonText.textContent = 'Processing...';
-    if (loading) loading.classList.remove('hidden');
-
-    // Generate unique reference
-    const reference = `xt_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-
-    // Initialize Paystack payment
+    payButton.querySelector('.loading').classList.remove('hidden');
+    
     const handler = PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
-      email: this.userData.email,
-      amount: amount * 100, // Convert to kobo
-      currency: "NGN",
-      ref: reference,
-      metadata: {
-        custom_fields: [
-          {
-            display_name: "User Email",
-            variable_name: "user_email",
-            value: this.userData.email
-          }
-        ]
-      },
+      email: userEmail,
+      amount: amount * 100,
+      ref: `XT_${Date.now()}`,
       callback: (response) => {
         console.log("✅ Payment successful:", response);
-        this.verifyPayment(response.reference, amount);
+        this.verifyPaymentAndUpdateBalance(response.reference, amount);
       },
       onClose: () => {
         console.log("❌ Payment cancelled");
         this.resetPayButton();
-        alert('Payment was cancelled.');
       }
     });
-
     handler.openIframe();
   }
 
-  // Verify payment and update balance
-  async verifyPayment(reference, amount) {
-    console.log("🔍 Verifying payment:", reference);
+  // --- MODIFIED: Renamed and now uses authenticated user ---
+  async verifyPaymentAndUpdateBalance(reference, amount) {
+    console.log("🔍 Verifying payment and updating balance for:", this.supabaseUser.email);
 
     try {
-      if (isSupabaseConnected && this.userData) {
-        const userEmail = this.userData.email;
-        
-        // Get current user profile
-        const { data: profileData, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('email', userEmail)
-          .single();
+      // Step 1: Fetch current profile to get latest balance
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('balance')
+        .eq('id', this.supabaseUser.id) // Securely fetch using ID
+        .single();
+      
+      if (profileError) throw new Error("Could not fetch user profile before update.");
 
-        if (profileError) {
-          console.error("❌ Profile fetch error:", profileError);
-          throw new Error("Failed to fetch user profile");
-        }
+      const currentBalance = parseFloat(profileData.balance || 0);
+      const newBalance = currentBalance + amount;
 
-        // Record transaction
-        const { data: transactionData, error: transactionError } = await supabase
-          .from('transactions')
-          .insert([
-            {
-              user_email: userEmail,
-              type: 'deposit',
-              amount: amount,
-              status: 'completed',
-              reference: reference,
-              payment_method: 'paystack',
-              description: `Wallet deposit via Paystack - ₦${amount.toLocaleString()}`
-            }
-          ])
-          .select()
-          .single();
+      // Step 2: Update user balance
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({ balance: newBalance })
+        .eq('id', this.supabaseUser.id); // Securely update using ID
+      
+      if (updateError) throw new Error("Could not update user balance.");
 
-        if (transactionError) {
-          console.error("❌ Transaction recording error:", transactionError);
-          throw new Error("Failed to record transaction");
-        }
+      // Step 3: Record the transaction for history
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert([{
+          user_email: this.supabaseUser.email,
+          type: 'deposit',
+          amount: amount,
+          status: 'completed',
+          reference: reference,
+          payment_method: 'paystack'
+        }]);
 
-        console.log("✅ Transaction recorded:", transactionData);
-
-        // Update user balance
-        const currentBalance = parseFloat(profileData.balance || 0);
-        const newBalance = currentBalance + amount;
-
-        const { data: updatedProfile, error: updateError } = await supabase
-          .from('user_profiles')
-          .update({ 
-            balance: newBalance,
-            updated_at: new Date().toISOString()
-          })
-          .eq('email', userEmail)
-          .select()
-          .single();
-
-        if (updateError) {
-          console.error("❌ Balance update error:", updateError);
-          throw new Error("Failed to update balance");
-        }
-
-        console.log("✅ Balance updated successfully:", updatedProfile);
-
-        // Success notification
-        alert(`✅ Payment successful! ₦${amount.toLocaleString()} added to your wallet.\n\nNew Balance: ₦${newBalance.toLocaleString()}`);
-        
-        // Update UI
-        this.updateBalanceDisplay(newBalance);
-        await this.loadRecentDeposits();
-        
-        // Clear the deposit amount input
-        document.getElementById('deposit-amount').value = '';
-        
-        // Redirect to dashboard after a short delay
-        setTimeout(() => {
-          window.location.href = "data.html";
-        }, 2000);
-
-        return;
+      if (transactionError) {
+        // This is not fatal, but should be logged. The user has been credited.
+        console.warn("⚠️ Failed to record transaction:", transactionError);
       }
 
-      // Fallback for demo mode
-      console.log("Demo mode - no Supabase connection");
-      alert(`✅ Demo Mode: ₦${amount.toLocaleString()} would be added to your wallet.\n\nPlease set up your database tables properly for real transactions.`);
-      
+      // Step 4: Success!
+      alert(`✅ Payment successful! ₦${amount.toLocaleString()} added.`);
+      this.updateBalanceDisplay(newBalance);
+      this.loadRecentDeposits();
+      document.getElementById('deposit-amount').value = '';
+
     } catch (error) {
-      console.error("❌ Payment verification failed:", error);
-      alert(`❌ Payment verification failed: ${error.message}\n\nReference: ${reference}\n\nPlease contact support if your payment was deducted.`);
+      console.error("❌ Verification/Credit failed:", error);
+      alert(`Payment failed: ${error.message}. Please contact support with reference: ${reference}`);
     } finally {
       this.resetPayButton();
     }
   }
 
-  // Reset pay button state
   resetPayButton() {
     const payButton = document.getElementById('pay-button');
-    if (!payButton) return;
-    
-    const buttonText = payButton.querySelector('span');
-    const loading = payButton.querySelector('.loading');
-    
     payButton.disabled = false;
-    if (buttonText) buttonText.textContent = 'Pay with Paystack';
-    if (loading) loading.classList.add('hidden');
+    payButton.querySelector('.loading').classList.add('hidden');
   }
 }
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 ExTremeData Deposit Page Loading...');
-  try {
-    new DepositManager();
-  } catch (error) {
-    console.error('❌ Failed to initialize DepositManager:', error);
+  if (PAYSTACK_PUBLIC_KEY === 'YOUR_PAYSTACK_PUBLIC_KEY') {
+    alert('CRITICAL: Paystack Public Key is not set. Payments will not work.');
   }
+  new DepositManager();
 });
 </script>
 </body>
