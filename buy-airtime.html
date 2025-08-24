@@ -8,114 +8,41 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
-  /* --- PROFESSIONAL DESIGN SYSTEM (Identical to data-topup page) --- */
+  /* --- PROFESSIONAL DESIGN SYSTEM (Complete) --- */
   :root {
-    --color-primary: #2563EB; /* Blue-600 */
-    --color-primary-hover: #1D4ED8; /* Blue-700 */
-    --color-primary-light: #EFF6FF; /* Blue-50 */
-    --color-text-primary: #1E293B; /* Slate-800 */
-    --color-text-secondary: #64748B; /* Slate-500 */
-    --color-border: #E2E8F0; /* Slate-200 */
-    --color-background: #F8FAFC; /* Slate-50 */
-    
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --color-primary: #2563EB; --color-primary-hover: #1D4ED8; --color-primary-light: #EFF6FF;
+    --color-text-primary: #1E293B; --color-text-secondary: #64748B; --color-border: #E2E8F0;
+    --color-background: #F8FAFC; --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-interactive: 0 0 0 4px rgb(59 130 246 / 0.25);
   }
   .dark {
-    --color-primary: #3B82F6;
-    --color-primary-hover: #60A5FA;
-    --color-primary-light: #1F2937;
-    --color-text-primary: #F8FAFC;
-    --color-text-secondary: #94A3B8;
-    --color-border: #334155;
+    --color-primary: #3B82F6; --color-primary-hover: #60A5FA; --color-primary-light: #1F2937;
+    --color-text-primary: #F8FAFC; --color-text-secondary: #94A3B8; --color-border: #334155;
     --color-background: #0F172A;
   }
-  body {
-    background-color: var(--color-background);
-    color: var(--color-text-primary);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  }
-  .header-nav {
-    background-color: white;
-    border-bottom: 1px solid var(--color-border);
-    box-shadow: var(--shadow-md);
-  }
+  body { background-color: var(--color-background); color: var(--color-text-primary); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  .header-nav { background-color: white; border-bottom: 1px solid var(--color-border); box-shadow: var(--shadow-md); }
   .dark .header-nav { background-color: #111827; }
-  .section-card {
-    background-color: white;
-    border: 1px solid var(--color-border);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-md);
-    transition: all 0.2s ease-in-out;
-  }
+  .section-card { background-color: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow-md); }
   .dark .section-card { background-color: var(--color-primary-light); }
-  .section-card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-  }
-  .horizontal-scroll-container {
-    display: flex;
-    overflow-x: auto;
-    padding-bottom: 1rem;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .horizontal-scroll-container { display: flex; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
   .horizontal-scroll-container::-webkit-scrollbar { display: none; }
-  .network-card {
-    flex-shrink: 0;
-    width: 140px;
-    padding: 1rem;
-    border: 2px solid var(--color-border);
-    border-radius: 1rem;
-    transition: all 0.2s ease-in-out;
-  }
-  .network-card.selected {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-light);
-    transform: scale(1.05);
-  }
+  .network-card { flex-shrink: 0; width: 140px; padding: 1rem; border: 2px solid var(--color-border); border-radius: 1rem; transition: all 0.2s ease-in-out; cursor:pointer; }
+  .network-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); transform: scale(1.05); }
   .network-logo { width: 36px; height: 36px; }
-  .elegant-input {
-    background-color: var(--color-background);
-    border: 2px solid var(--color-border);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease-in-out;
-  }
-  .elegant-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-interactive);
-    outline: none;
-  }
-  .purchase-button {
-    background-color: var(--color-primary);
-    color: white;
-    border-radius: 1rem;
-    padding: 1rem 2rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-    transition: all 0.2s ease-in-out;
-    box-shadow: var(--shadow-lg);
-  }
-  .purchase-button:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    transform: translateY(-2px);
-  }
-  .purchase-button:disabled {
-    background-color: #94A3B8;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+  .elegant-input { background-color: var(--color-background); border: 2px solid var(--color-border); border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.2s ease-in-out; }
+  .elegant-input:focus { border-color: var(--color-primary); box-shadow: var(--shadow-interactive); outline: none; }
+  .purchase-button { background-color: var(--color-primary); color: white; border-radius: 1rem; padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; transition: all 0.2s ease-in-out; box-shadow: var(--shadow-lg); display:flex; align-items:center; justify-content:center; }
+  .purchase-button:hover:not(:disabled) { background-color: var(--color-primary-hover); transform: translateY(-2px); }
+  .purchase-button:disabled { background-color: #94A3B8; cursor: not-allowed; box-shadow: none; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .loading { animation: spin 1s linear infinite; }
   </style>
 </head>
 
 <body class="min-h-screen">
-  <!-- Navigation (Your HTML is perfect and remains unchanged) -->
+  <!-- Navigation -->
   <nav class="header-nav sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
@@ -136,7 +63,6 @@
     </div>
   </nav>
 
-  <!-- Main Content (Your HTML is perfect and remains unchanged) -->
   <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     <!-- Network Selection -->
     <section class="section-card">
@@ -146,38 +72,36 @@
       </h2>
       <div class="horizontal-scroll-container space-x-4"></div>
     </section>
+    
     <!-- Details Section -->
     <div id="detailsSection" class="space-y-6 hidden">
-        <!-- Phone Number -->
         <section class="section-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="phone" class="w-5 h-5"></i></div>Enter Phone Number</h2>
-            <div class="relative"><input type="tel" id="phoneNumber" placeholder="080 1234 5678" class="elegant-input w-full text-lg font-medium" maxlength="11"><i data-lucide="smartphone" class="absolute right-4 ..."></i></div>
+            <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 flex items-center justify-center"><i data-lucide="phone" class="w-5 h-5"></i></div>Enter Phone Number</h2>
+            <div class="relative"><input type="tel" id="phoneNumber" placeholder="080 1234 5678" class="elegant-input w-full text-lg font-medium" maxlength="11"><i data-lucide="smartphone" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i></div>
         </section>
-        <!-- Amount -->
         <section class="section-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 ..."><i data-lucide="wallet" class="w-5 h-5"></i></div>Enter Amount</h2>
-            <div class="relative"><span class="absolute left-4 ...">₦</span><input type="number" id="airtimeAmount" placeholder="50 - 10,000" class="elegant-input w-full text-lg font-medium pl-10"></div>
+            <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center"><i data-lucide="wallet" class="w-5 h-5"></i></div>Enter Amount</h2>
+            <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-slate-400">₦</span><input type="number" id="airtimeAmount" placeholder="50 - 10,000" class="elegant-input w-full text-lg font-medium pl-10"></div>
             <p class="text-xs text-slate-400 mt-2">Minimum purchase is ₦50.</p>
         </section>
     </div>
+
     <!-- Purchase Summary -->
     <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
-      <section class="section-card ...">
+      <section class="section-card">
         <h3 class="text-lg font-bold mb-4">Summary</h3>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between"><span class="text-slate-500">Network</span><span id="summaryNetwork" class="font-semibold">-</span></div>
           <div class="flex justify-between"><span class="text-slate-500">Phone Number</span><span id="summaryPhone" class="font-semibold">-</span></div>
-          <hr class="border-dashed ...">
+          <hr class="border-dashed border-slate-200 dark:border-slate-700 my-2">
           <div class="flex justify-between items-center text-lg"><span class="font-bold">Total</span><span id="summaryAmount" class="font-bold text-2xl text-blue-600 dark:text-blue-400">₦0.00</span></div>
         </div>
       </section>
       <div class="text-center">
         <button id="purchaseBtn" class="purchase-button w-full max-w-sm mx-auto" disabled>
-          <span class="flex items-center justify-center space-x-2">
             <span id="purchaseBtnText">Enter Amount</span>
-            <i data-lucide="arrow-right" class="w-5 h-5" id="purchaseBtnIcon"></i>
-            <i data-lucide="loader" class="loading w-5 h-5 hidden" id="purchaseBtnLoader"></i>
-          </span>
+            <i data-lucide="arrow-right" class="w-5 h-5 ml-2" id="purchaseBtnIcon"></i>
+            <i data-lucide="loader" class="loading w-5 h-5 ml-2 hidden" id="purchaseBtnLoader"></i>
         </button>
       </div>
     </div>
@@ -189,8 +113,16 @@ const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function applyDarkMode() { /* ... unchanged ... */ }
-window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') applyDarkMode(); });
+// FIXED: Restored the dark mode synchronization logic
+function applyDarkMode() {
+  const isDarkMode = localStorage.getItem('xt_theme') === 'dark';
+  document.documentElement.classList.toggle('dark', isDarkMode);
+}
+window.addEventListener('storage', (e) => { 
+  if (e.key === 'xt_theme') {
+    applyDarkMode();
+  }
+});
 applyDarkMode();
 
 // --- DATA ---
@@ -245,44 +177,37 @@ class AirtimePurchaseManager {
     await this.loadWalletBalance();
     lucide.createIcons();
   }
-  
-  // --- FIXED: This function now queries by 'id' ---
+
   async loadWalletBalance() {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('balance')
-        .eq('id', this.supabaseUser.id) // Use the secure, authenticated ID
-        .single();
-
+      const { data, error } = await supabase.from('user_profiles').select('balance').eq('id', this.supabaseUser.id).single();
       if (error) throw error;
-      
       this.userBalance = data ? parseFloat(data.balance) : 0;
       this.updateBalanceDisplay(this.userBalance);
-
     } catch (error) {
       console.error("❌ Error loading balance:", error);
       document.getElementById('walletBalance').textContent = 'Error';
     }
   }
-  
-  // --- FIXED: This function now updates by 'id' ---
+
   async processPurchase() {
     if (this.airtimeAmount > this.userBalance) {
       alert("Insufficient balance.");
       return;
     }
     
-    // ... UI loading state ...
+    const btn = document.getElementById('purchaseBtn');
+    const btnText = document.getElementById('purchaseBtnText');
+    const btnIcon = document.getElementById('purchaseBtnIcon');
+    const btnLoader = document.getElementById('purchaseBtnLoader');
+    btn.disabled = true;
+    btnText.textContent = 'Processing...';
+    btnIcon.classList.add('hidden');
+    btnLoader.classList.remove('hidden');
 
     try {
       const newBalance = this.userBalance - this.airtimeAmount;
-
-      const { error: updateError } = await supabase
-        .from('user_profiles')
-        .update({ balance: newBalance })
-        .eq('id', this.supabaseUser.id); // Use the secure, authenticated ID
-
+      const { error: updateError } = await supabase.from('user_profiles').update({ balance: newBalance }).eq('id', this.supabaseUser.id);
       if (updateError) throw updateError;
       
       const { error: transactionError } = await supabase.from('transactions').insert([{
@@ -290,10 +215,9 @@ class AirtimePurchaseManager {
         type: 'purchase',
         amount: this.airtimeAmount,
         status: 'completed',
-        description: `Airtime: ₦${this.airtimeAmount} ${this.selectedNetwork.toUpperCase()}`,
+        description: `Airtime: ₦${this.airtimeAmount.toLocaleString()} ${this.selectedNetwork.toUpperCase()}`,
         payment_method: 'wallet'
       }]);
-
       if (transactionError) console.warn("⚠️ Transaction logging failed:", transactionError);
 
       alert("Purchase successful!");
@@ -305,11 +229,13 @@ class AirtimePurchaseManager {
       console.error("❌ Purchase failed:", error);
       alert(`Error: ${error.message}`);
     } finally {
-      // ... reset UI loading state ...
+      btn.disabled = false;
+      btnIcon.classList.remove('hidden');
+      btnLoader.classList.add('hidden');
+      this.updateState();
     }
   }
 
-  // --- All other helper functions are now complete ---
   renderNetworkCards() {
     const container = document.querySelector('.horizontal-scroll-container');
     container.innerHTML = networks.map(net => `
