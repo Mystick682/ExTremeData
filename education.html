@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cable TV Subscription - ExTremeData</title>
+  <title>Education PINs - ExTremeData</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <!-- ▼▼▼ ADD SWEETALERT2 LIBRARY ▼▼▼ -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
   /* --- PROFESSIONAL DESIGN SYSTEM (UNCHANGED) --- */
@@ -28,15 +27,10 @@
   .dark .header-nav { background-color: #111827; }
   .section-card { background-color: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow-md); }
   .dark .section-card { background-color: var(--color-primary-light); }
-  .horizontal-scroll-container { display: flex; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
-  .horizontal-scroll-container::-webkit-scrollbar { display: none; }
-  .provider-card { flex-shrink: 0; width: 140px; padding: 1rem; border: 2px solid var(--color-border); border-radius: 1rem; transition: all 0.2s ease-in-out; cursor:pointer; }
-  .provider-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); transform: scale(1.05); }
-  .provider-logo { width: 48px; height: 48px; object-fit: contain; }
-  .plan-card { border: 2px solid var(--color-border); border-radius: 1rem; padding: 1rem; transition: all 0.2s ease-in-out; cursor: pointer; position: relative; }
-  .plan-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); box-shadow: var(--shadow-interactive); }
+  .product-card { border: 2px solid var(--color-border); border-radius: 1rem; padding: 1rem; transition: all 0.2s ease-in-out; cursor: pointer; position: relative; }
+  .product-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); box-shadow: var(--shadow-interactive); }
   .checkmark-icon { position: absolute; top: 8px; right: 8px; background-color: var(--color-primary); color: white; border-radius: 99px; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; }
-  .plan-card.selected .checkmark-icon { display: flex; }
+  .product-card.selected .checkmark-icon { display: flex; }
   .elegant-input { background-color: var(--color-background); border: 2px solid var(--color-border); border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.2s ease-in-out; }
   .elegant-input:focus { border-color: var(--color-primary); box-shadow: var(--shadow-interactive); outline: none; }
   .btn-primary { background-color: var(--color-primary); color: white; border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-weight: 600; transition: all 0.2s ease-in-out; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; }
@@ -44,7 +38,6 @@
   .btn-primary:disabled { background-color: #94A3B8; cursor: not-allowed; box-shadow: none; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .loading { animation: spin 1s linear infinite; }
-  /* --- NEW: Styles for the Password Modal --- */
   #passwordModal { display: flex; opacity: 0; visibility: hidden; transition: all 0.2s ease-in-out; }
   #passwordModal.visible { opacity: 1; visibility: visible; }
   #passwordModalContent { transform: scale(0.95); transition: all 0.2s ease-in-out; }
@@ -53,13 +46,13 @@
 </head>
 
 <body class="min-h-screen">
-  <!-- Navigation (UNCHANGED) -->
+  <!-- Navigation -->
   <nav class="header-nav sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-3">
           <a href="data.html" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-          <h1 class="text-lg font-bold">Cable TV Subscription</h1>
+          <h1 class="text-lg font-bold">Education PINs</h1>
         </div>
         <div class="flex items-center space-x-4">
           <div class="text-right">
@@ -72,49 +65,35 @@
     </div>
   </nav>
 
-  <!-- Main Content (UNCHANGED) -->
   <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <!-- Product Selection -->
     <section class="section-card">
-      <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 flex items-center justify-center"><i data-lucide="tv" class="w-5 h-5"></i></div>Select Provider</h2>
-      <div class="horizontal-scroll-container space-x-4"></div>
+      <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center"><i data-lucide="graduation-cap" class="w-5 h-5"></i></div>Select Product</h2>
+      <div id="productSelection" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Products will be dynamically inserted here -->
+      </div>
     </section>
 
+    <!-- Details Section -->
     <div id="detailsSection" class="space-y-6 hidden">
       <section class="section-card">
-        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center"><i data-lucide="contact" class="w-5 h-5"></i></div>Decoder Details</h2>
-        <div class="space-y-4">
-          <div>
-            <label for="smartcardNumber" class="text-sm font-medium text-slate-600 dark:text-slate-300 block mb-1">Smartcard / IUC Number</label>
-            <input type="number" id="smartcardNumber" placeholder="Enter your decoder number" class="elegant-input w-full text-lg font-medium">
-          </div>
-          <button id="verifyBtn" class="btn-primary w-full" disabled>
-            <span id="verifyBtnText">Verify Details</span>
-            <i id="verifyBtnSpinner" data-lucide="loader" class="loading w-5 h-5 ml-2 hidden"></i>
-          </button>
-          <div id="verificationResult" class="hidden mt-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-800 text-center">
-            <div class="text-sm text-green-800 dark:text-green-300">Customer Name</div>
-            <div id="customerName" class="font-bold text-green-900 dark:text-green-200"></div>
-          </div>
-          <div id="verificationError" class="hidden mt-4 text-sm text-center text-red-600"></div>
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center"><i data-lucide="hash" class="w-5 h-5"></i></div>Quantity</h2>
+        <div class="flex items-center justify-center space-x-4">
+            <button id="decreaseQtyBtn" class="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"><i data-lucide="minus" class="w-5 h-5"></i></button>
+            <input type="number" id="quantity" value="1" min="1" max="100" class="elegant-input w-24 text-center text-lg font-bold">
+            <button id="increaseQtyBtn" class="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"><i data-lucide="plus" class="w-5 h-5"></i></button>
         </div>
       </section>
     </div>
-
-    <div id="plansSection" class="space-y-6 hidden">
-      <section class="section-card">
-        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center"><i data-lucide="package" class="w-5 h-5"></i></div>Choose Bouquet</h2>
-        <div id="cablePlans" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-      </section>
-    </div>
     
+    <!-- Summary & Purchase -->
     <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
         <section class="section-card">
             <h3 class="text-lg font-bold mb-4">Summary</h3>
             <div class="space-y-3 text-sm">
-                <div class="flex justify-between"><span class="text-slate-500">Provider</span><span id="summaryProvider" class="font-semibold">-</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Smartcard</span><span id="summarySmartcard" class="font-semibold">-</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Customer</span><span id="summaryCustomer" class="font-semibold">-</span></div>
-                <div class="flex justify-between"><span class="text-slate-500">Bouquet</span><span id="summaryPlan" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Product</span><span id="summaryProduct" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Quantity</span><span id="summaryQuantity" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Price per PIN</span><span id="summaryPrice" class="font-semibold">-</span></div>
                 <hr class="border-dashed border-slate-200 dark:border-slate-700 my-2">
                 <div class="flex justify-between items-center text-lg"><span class="font-bold">Total</span><span id="summaryAmount" class="font-bold text-2xl text-blue-600 dark:text-blue-400">₦0</span></div>
             </div>
@@ -128,11 +107,11 @@
     </div>
   </main>
 
-  <!-- ▼▼▼ NEW PASSWORD MODAL HTML ▼▼▼ -->
+  <!-- Password Modal -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden items-center justify-center p-4">
     <div class="section-card w-full max-w-sm" id="passwordModalContent">
       <h2 class="text-xl font-bold mb-1 text-center">Confirm Purchase</h2>
-      <p class="text-sm text-center text-slate-500 mb-6">Enter your password to authorize this subscription.</p>
+      <p class="text-sm text-center text-slate-500 mb-6">Enter your password to authorize this purchase.</p>
       <div class="relative">
         <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
         <input type="password" id="confirmPasswordInput" placeholder="Enter your password" class="elegant-input w-full text-lg pl-12 pr-12">
@@ -151,37 +130,31 @@
     </div>
   </div>
 
-<!-- ======================================================= -->
-<!-- ▼▼▼ THIS IS THE ONLY SCRIPT YOU NEED. REPLACE THE OLD ONE. ▼▼▼ -->
-<!-- ======================================================= -->
 <script>
 // --- GLOBAL SETUP ---
 const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const cableProviders = [
-    { id: 'dstv', name: 'DSTV' },
-    { id: 'gotv', name: 'GOtv' },
-    { id: 'startimes', name: 'Startimes' }
-];
 
 // --- MAIN APPLICATION CLASS ---
-class CablePurchaseManager {
+class EducationPinManager {
   constructor() {
     this.localUserData = null;
     this.supabaseUser = null;
     this.userBalance = 0;
-    this.selectedProvider = null;
-    this.smartcardNumber = '';
-    this.verifiedCustomerName = null;
-    this.selectedPlan = null;
+    this.selectedProduct = null;
+    this.quantity = 1;
+    this.products = [];
   }
 
   // 1. INITIALIZE THE PAGE
   async initialize() {
     this.applyDarkMode();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { window.location.href = "signin.html"; return; }
+    if (!user) {
+      window.location.href = "signin.html";
+      return;
+    }
     this.supabaseUser = user;
     this.loadLocalUserData();
     this.initializeUI();
@@ -192,20 +165,17 @@ class CablePurchaseManager {
   async initializeUI() {
     const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
     document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
-    this.renderProviderCards();
     await this.loadWalletBalance();
+    await this.loadProducts();
     lucide.createIcons();
   }
   
   // 3. ATTACH ALL EVENT LISTENERS
   setupEventListeners() {
     window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') this.applyDarkMode(); });
-    document.querySelector('.horizontal-scroll-container').addEventListener('click', (e) => this.handleProviderSelection(e));
-    document.getElementById('smartcardNumber').addEventListener('input', (e) => {
-      this.smartcardNumber = e.target.value.replace(/\D/g, '');
-      document.getElementById('verifyBtn').disabled = this.smartcardNumber.length < 8;
-    });
-    document.getElementById('verifyBtn').addEventListener('click', () => this.handleVerifyDetails());
+    document.getElementById('decreaseQtyBtn').addEventListener('click', () => this.updateQuantity(-1));
+    document.getElementById('increaseQtyBtn').addEventListener('click', () => this.updateQuantity(1));
+    document.getElementById('quantity').addEventListener('change', (e) => this.updateQuantity(0, e.target.value)); // Use 'change' for better UX
     document.getElementById('purchaseBtn').addEventListener('click', () => this.startPurchase());
     this.setupPasswordModalListeners();
   }
@@ -219,22 +189,12 @@ class CablePurchaseManager {
   loadLocalUserData() {
     try {
       const storedData = localStorage.getItem("userData");
-      if (!storedData) throw new Error("No local data");
-      this.localUserData = JSON.parse(storedData);
-    } catch (error) {
+      if (storedData) this.localUserData = JSON.parse(storedData);
+      else throw new Error("No user data found.");
+    } catch(e) {
       Swal.fire({ icon: 'error', title: 'Session Error', text: 'Please sign in again.'})
         .then(() => window.location.href = "signin.html");
     }
-  }
-
-  renderProviderCards() {
-    const container = document.querySelector('.horizontal-scroll-container');
-    container.innerHTML = cableProviders.map(p => `
-      <div class="provider-card text-center space-y-2" data-provider="${p.id}">
-        <div class="flex justify-center"><img src="https://www.vtpass.com/resources/images/billers/${p.id}.png" class="provider-logo" alt="${p.name}"></div>
-        <div class="font-semibold text-sm">${p.name}</div>
-      </div>
-    `).join('');
   }
 
   async loadWalletBalance() {
@@ -247,119 +207,82 @@ class CablePurchaseManager {
       document.getElementById('walletBalance').textContent = 'Error';
     }
   }
-
-  // --- CORE LOGIC FUNCTIONS ---
-  handleProviderSelection(e) {
-    const card = e.target.closest('.provider-card');
-    if (!card) return;
-    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    this.selectedProvider = card.dataset.provider;
-    document.getElementById('detailsSection').classList.remove('hidden');
-    this.resetVerificationAndPlans();
-  }
   
-  async handleVerifyDetails() {
-    const verifyBtn = document.getElementById('verifyBtn');
-    const btnText = document.getElementById('verifyBtnText');
-    const spinner = document.getElementById('verifyBtnSpinner');
-    const resultDiv = document.getElementById('verificationResult');
-    const errorDiv = document.getElementById('verificationError');
-    
-    verifyBtn.disabled = true;
-    btnText.textContent = 'Verifying...';
-    spinner.classList.remove('hidden');
-    resultDiv.classList.add('hidden');
-    errorDiv.classList.add('hidden');
-
+  async loadProducts() {
+    const productContainer = document.getElementById('productSelection');
+    productContainer.innerHTML = `<div class="col-span-full text-center p-4 text-slate-500">Loading products...</div>`;
     try {
-      const { data, error } = await supabase.functions.invoke('verify-smartcard', {
-        body: { serviceID: this.selectedProvider, billersCode: this.smartcardNumber }
+      const { data, error } = await supabase.functions.invoke('get-service-variations', {
+        body: { serviceID: 'waec' }
       });
       if (error || data.error) throw error || new Error(data.error);
-
-      this.verifiedCustomerName = data.customerName;
-      document.getElementById('customerName').textContent = this.verifiedCustomerName;
-      resultDiv.classList.remove('hidden');
-      document.getElementById('plansSection').classList.remove('hidden');
-      this.loadPlans();
-
-    } catch(err) {
-      this.verifiedCustomerName = null;
-      errorDiv.textContent = err.message;
-      errorDiv.classList.remove('hidden');
-    } finally {
-      verifyBtn.disabled = false;
-      btnText.textContent = 'Verify Details';
-      spinner.classList.add('hidden');
+      if (data.plans) {
+        this.products = data.plans;
+        productContainer.innerHTML = this.products.map(product => `
+          <div class="product-card" data-product='${JSON.stringify(product)}'>
+            <div class="checkmark-icon"><i data-lucide="check" class="w-4 h-4"></i></div>
+            <div class="font-bold text-lg">${product.name}</div>
+            <div class="font-bold text-lg text-blue-600 dark:text-blue-400 mt-1">₦${product.price.toLocaleString()}</div>
+          </div>
+        `).join('');
+        productContainer.querySelectorAll('.product-card').forEach(card => 
+          card.addEventListener('click', (e) => this.handleProductSelection(e.currentTarget))
+        );
+        lucide.createIcons();
+      } else {
+        throw new Error("No WAEC products found.");
+      }
+    } catch (err) {
+      productContainer.innerHTML = `<div class="col-span-full text-center p-4 text-red-500">${err.message}</div>`;
     }
   }
-
-  async loadPlans() {
-    const plansContainer = document.getElementById('cablePlans');
-    plansContainer.innerHTML = `<div class="col-span-full text-center p-4 text-slate-500">Loading bouquets...</div>`;
-    try {
-        const { data, error } = await supabase.functions.invoke('get-service-variations', {
-            body: { serviceID: this.selectedProvider }
-        });
-        if (error || data.error) throw error || new Error(data.error);
-        
-        if (data.plans) {
-            plansContainer.innerHTML = data.plans.map(plan => {
-                const planData = { name: plan.name, price: parseFloat(plan.price), variation_code: plan.variation_code };
-                return `<div class="plan-card" data-plan='${JSON.stringify(planData)}'><div class="checkmark-icon"><i data-lucide="check" class="w-4 h-4"></i></div><div class="font-bold">${plan.name}</div><div class="font-bold text-blue-600 dark:text-blue-400 mt-1">₦${plan.price.toLocaleString()}</div></div>`;
-            }).join('');
-            plansContainer.querySelectorAll('.plan-card').forEach(card => card.addEventListener('click', (e) => this.handlePlanSelection(e.currentTarget)));
-            lucide.createIcons();
-        } else {
-            throw new Error("No bouquets found for this provider.");
-        }
-    } catch(err) {
-        plansContainer.innerHTML = `<div class="col-span-full text-center p-4 text-red-500">${err.message}</div>`;
-    }
-  }
-
-  handlePlanSelection(card) {
-    document.querySelectorAll('#cablePlans .plan-card').forEach(c => c.classList.remove('selected'));
+  
+  handleProductSelection(card) {
+    document.querySelectorAll('#productSelection .product-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
-    this.selectedPlan = JSON.parse(card.dataset.plan);
+    this.selectedProduct = JSON.parse(card.dataset.product);
+    document.getElementById('detailsSection').classList.remove('hidden');
+    this.updateSummary();
+  }
+
+  updateQuantity(change, value = null) {
+    let currentQty = parseInt(document.getElementById('quantity').value);
+    if (value !== null) { currentQty = parseInt(value) || 1; } 
+    else { currentQty += change; }
+    if (currentQty < 1) currentQty = 1;
+    if (currentQty > 100) currentQty = 100;
+    document.getElementById('quantity').value = currentQty;
+    this.quantity = currentQty;
     this.updateSummary();
   }
 
   updateSummary() {
     const summarySection = document.getElementById('summarySection');
-    document.getElementById('summaryProvider').textContent = this.selectedProvider.toUpperCase();
-    document.getElementById('summarySmartcard').textContent = this.smartcardNumber;
-    document.getElementById('summaryCustomer').textContent = this.verifiedCustomerName;
-    document.getElementById('summaryPlan').textContent = this.selectedPlan.name;
-    document.getElementById('summaryAmount').textContent = `₦${this.selectedPlan.price.toLocaleString()}`;
-    summarySection.classList.remove('hidden');
+    const btn = document.getElementById('purchaseBtn');
+    const isReady = this.selectedProduct && this.quantity > 0;
+    summarySection.classList.toggle('hidden', !isReady);
+    if (isReady) {
+      const total = this.selectedProduct.price * this.quantity;
+      document.getElementById('summaryProduct').textContent = this.selectedProduct.name;
+      document.getElementById('summaryQuantity').textContent = this.quantity;
+      document.getElementById('summaryPrice').textContent = `₦${this.selectedProduct.price.toLocaleString()}`;
+      document.getElementById('summaryAmount').textContent = `₦${total.toLocaleString()}`;
+      btn.disabled = false;
+    } else {
+      btn.disabled = true;
+    }
   }
 
-  resetVerificationAndPlans() {
-    this.verifiedCustomerName = null; this.selectedPlan = null;
-    document.getElementById('verificationResult').classList.add('hidden');
-    document.getElementById('verificationError').classList.add('hidden');
-    document.getElementById('plansSection').classList.add('hidden');
-    document.getElementById('summarySection').classList.add('hidden');
-    document.getElementById('smartcardNumber').value = '';
-    document.getElementById('verifyBtn').disabled = true;
-  }
-  
   // --- PASSWORD MODAL & PURCHASE FLOW ---
   setupPasswordModalListeners() {
     const passwordInput = document.getElementById('confirmPasswordInput');
     const passwordConfirmBtn = document.getElementById('passwordConfirmBtn');
     const passwordToggleBtn = document.getElementById('passwordToggleBtn');
     passwordToggleBtn.addEventListener('click', () => this.togglePasswordVisibility());
-    passwordInput.addEventListener('input', () => {
-      document.getElementById('passwordError').textContent = '';
-      passwordConfirmBtn.disabled = passwordInput.value.length < 6;
-    });
+    passwordInput.addEventListener('input', () => { document.getElementById('passwordError').textContent = ''; passwordConfirmBtn.disabled = passwordInput.value.length < 6; });
     document.getElementById('passwordCancelBtn').addEventListener('click', () => this.hidePasswordModal());
     document.getElementById('passwordConfirmBtn').addEventListener('click', () => this.processPurchase(passwordInput.value));
   }
-
   togglePasswordVisibility() {
     const passwordInput = document.getElementById('confirmPasswordInput');
     const toggleIcon = document.querySelector('#passwordToggleBtn i');
@@ -368,7 +291,6 @@ class CablePurchaseManager {
     toggleIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
     lucide.createIcons();
   }
-
   showPasswordModal() {
     const passwordModal = document.getElementById('passwordModal');
     passwordModal.classList.add('visible');
@@ -379,25 +301,21 @@ class CablePurchaseManager {
     document.getElementById('confirmPasswordInput').focus();
     lucide.createIcons();
   }
-
-  hidePasswordModal() {
-    document.getElementById('passwordModal').classList.remove('visible');
-  }
+  hidePasswordModal() { document.getElementById('passwordModal').classList.remove('visible'); }
 
   async startPurchase() {
-    if (this.selectedPlan.price > this.userBalance) {
-      Swal.fire({ icon: 'error', title: 'Insufficient Balance', text: 'You do not have enough funds for this subscription.', confirmButtonColor: 'var(--color-primary)' });
+    const totalCost = this.selectedProduct.price * this.quantity;
+    if (totalCost > this.userBalance) {
+      Swal.fire({ icon: 'error', title: 'Insufficient Balance', text: 'You do not have enough funds for this purchase.', confirmButtonColor: 'var(--color-primary)' });
       return;
     }
     const result = await Swal.fire({
-      title: 'Confirm Subscription',
-      html: `Subscribe to <b>${this.selectedPlan.name}</b> for <b>${this.smartcardNumber}</b>?`,
+      title: 'Confirm Purchase',
+      html: `Buy <b>${this.quantity} x ${this.selectedProduct.name}</b> for a total of <b>₦${totalCost.toLocaleString()}</b>?`,
       icon: 'question', showCancelButton: true, confirmButtonColor: 'var(--color-primary)',
-      cancelButtonColor: '#64748B', confirmButtonText: 'Yes, Subscribe!', cancelButtonText: 'Cancel'
+      cancelButtonColor: '#64748B', confirmButtonText: 'Yes, Buy Now!', cancelButtonText: 'Cancel'
     });
-    if (result.isConfirmed) {
-      this.showPasswordModal();
-    }
+    if (result.isConfirmed) { this.showPasswordModal(); }
   }
   
   async processPurchase(password) {
@@ -421,22 +339,31 @@ class CablePurchaseManager {
       btn.disabled = true;
       spinner.classList.remove('hidden');
       
-      const { data, error } = await supabase.functions.invoke('purchase-cable', {
+      const { data, error } = await supabase.functions.invoke('purchase-education', {
         body: {
-          serviceID: this.selectedProvider,
-          billersCode: this.smartcardNumber,
-          variation_code: this.selectedPlan.variation_code,
-          amount: this.selectedPlan.price
+          variation_code: this.selectedProduct.variation_code,
+          amount: this.selectedProduct.price,
+          quantity: this.quantity
         },
       });
       if (error || data.error) throw error || new Error(data.error);
       
       this.hidePasswordModal();
-      Swal.fire({ icon: 'success', title: 'Subscription Successful!', text: `${this.selectedPlan.name} has been activated for ${this.smartcardNumber}.`, confirmButtonColor: 'var(--color-primary)' });
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'Purchase Successful!', 
+        html: `Your WAEC PIN(s) have been purchased successfully.<br><br><b>Transaction ID:</b><div class="mt-2 p-2 bg-slate-100 dark:bg-slate-700 rounded-md text-sm">${data.transactionId}</div>`, 
+        confirmButtonColor: 'var(--color-primary)' 
+      });
       
       this.userBalance = data.newBalance;
       document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-      this.resetUI();
+      document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('detailsSection').classList.add('hidden');
+      document.getElementById('summarySection').classList.add('hidden');
+      this.selectedProduct = null;
+      this.quantity = 1;
+      document.getElementById('quantity').value = 1;
 
     } catch (err) {
       if (err.message.includes('Invalid password')) {
@@ -444,7 +371,7 @@ class CablePurchaseManager {
         document.getElementById('confirmPasswordInput').focus();
       } else {
         this.hidePasswordModal();
-        Swal.fire({ icon: 'error', title: 'Subscription Failed', text: err.message, confirmButtonColor: 'var(--color-primary)' });
+        Swal.fire({ icon: 'error', title: 'Purchase Failed', text: err.message, confirmButtonColor: 'var(--color-primary)' });
       }
     } finally {
       btn.disabled = false;
@@ -455,18 +382,14 @@ class CablePurchaseManager {
       lucide.createIcons();
     }
   }
-
-  resetUI() {
-    this.resetVerificationAndPlans();
-    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById('detailsSection').classList.add('hidden');
-  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-const app = new CablePurchaseManager();
+  const app = new EducationPinManager();
   app.initialize();
 });
 </script>
+</body>
+</html>
 </body>
 </html>
