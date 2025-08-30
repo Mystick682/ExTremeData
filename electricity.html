@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electricity Bill - ExTremeData</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+  /* --- PROFESSIONAL DESIGN SYSTEM (UNCHANGED) --- */
+  :root {
+    --color-primary: #2563EB; --color-primary-hover: #1D4ED8; --color-primary-light: #EFF6FF;
+    --color-text-primary: #1E293B; --color-text-secondary: #64748B; --color-border: #E2E8F0;
+    --color-background: #F8FAFC; --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-interactive: 0 0 0 4px rgb(59 130 246 / 0.25);
+  }
+  .dark {
+    --color-primary: #3B82F6; --color-primary-hover: #60A5FA; --color-primary-light: #1F2937;
+    --color-text-primary: #F8FAFC; --color-text-secondary: #94A3B8; --color-border: #334155;
+    --color-background: #0F172A;
+  }
+  body { background-color: var(--color-background); color: var(--color-text-primary); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  .header-nav { background-color: white; border-bottom: 1px solid var(--color-border); box-shadow: var(--shadow-md); }
+  .dark .header-nav { background-color: #111827; }
+  .section-card { background-color: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow-md); }
+  .dark .section-card { background-color: var(--color-primary-light); }
+  .provider-card { border: 2px solid var(--color-border); border-radius: 1rem; transition: all 0.2s ease-in-out; cursor:pointer; }
+  .provider-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); transform: scale(1.02); }
+  .provider-logo { width: 48px; height: 48px; object-fit: contain; }
+  .elegant-input { background-color: var(--color-background); border: 2px solid var(--color-border); border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.2s ease-in-out; }
+  .elegant-input:focus { border-color: var(--color-primary); box-shadow: var(--shadow-interactive); outline: none; }
+  .btn-primary { background-color: var(--color-primary); color: white; border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-weight: 600; transition: all 0.2s ease-in-out; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; }
+  .btn-primary:hover:not(:disabled) { background-color: var(--color-primary-hover); transform: translateY(-1px); }
+  .btn-primary:disabled { background-color: #94A3B8; cursor: not-allowed; box-shadow: none; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .loading { animation: spin 1s linear infinite; }
+  #passwordModal { display: flex; opacity: 0; visibility: hidden; transition: all 0.2s ease-in-out; }
+  #passwordModal.visible { opacity: 1; visibility: visible; }
+  #passwordModalContent { transform: scale(0.95); transition: all 0.2s ease-in-out; }
+  #passwordModal.visible #passwordModalContent { transform: scale(1); }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <!-- Navigation -->
+  <nav class="header-nav sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-3">
+          <a href="data.html" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+          <h1 class="text-lg font-bold">Electricity Bill</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right">
+            <div class="text-xs text-slate-500 dark:text-slate-400">Balance</div>
+            <div id="walletBalance" class="font-bold text-lg">Loading...</div>
+          </div>
+          <div id="userAvatar" class="w-10 h-10 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center font-bold text-sm">?</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <!-- Provider Selection -->
+    <section class="section-card">
+      <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 flex items-center justify-center"><i data-lucide="zap" class="w-5 h-5"></i></div>Select Distributor</h2>
+      <div id="providerGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- Details Section -->
+    <div id="detailsSection" class="space-y-6 hidden">
+      <section class="section-card">
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center"><i data-lucide="contact" class="w-5 h-5"></i></div>Meter Details</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-medium text-slate-600 dark:text-slate-300 block mb-2">Meter Type</label>
+            <div class="flex space-x-4">
+              <button data-type="prepaid" class="meter-type-btn flex-1 p-3 border-2 rounded-lg font-semibold">Prepaid</button>
+              <button data-type="postpaid" class="meter-type-btn flex-1 p-3 border-2 rounded-lg font-semibold">Postpaid</button>
+            </div>
+          </div>
+          <div id="meterNumberDiv" class="hidden">
+            <label for="meterNumber" class="text-sm font-medium text-slate-600 dark:text-slate-300 block mb-1">Meter Number</label>
+            <input type="number" id="meterNumber" placeholder="Enter your meter number" class="elegant-input w-full text-lg font-medium">
+          </div>
+          <button id="verifyBtn" class="btn-primary w-full" disabled>
+            <span id="verifyBtnText">Verify Details</span>
+            <i id="verifyBtnSpinner" data-lucide="loader" class="loading w-5 h-5 ml-2 hidden"></i>
+          </button>
+          <div id="verificationResult" class="hidden mt-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-800">
+            <div id="customerName" class="font-bold text-green-900 dark:text-green-200 text-center"></div>
+            <div id="customerAddress" class="text-sm text-green-800 dark:text-green-300 text-center mt-1"></div>
+          </div>
+          <div id="verificationError" class="hidden mt-4 text-sm text-center text-red-600"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Amount Section -->
+    <div id="amountSection" class="space-y-6 hidden">
+      <section class="section-card">
+        <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center"><i data-lucide="wallet" class="w-5 h-5"></i></div>Payment Amount</h2>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1-2 font-bold text-lg text-slate-400">₦</span>
+          <input type="number" id="paymentAmount" placeholder="500 - 200,000" class="elegant-input w-full text-lg font-medium pl-10">
+        </div>
+        <p class="text-xs text-slate-400 mt-2">Minimum payment is ₦500.</p>
+      </section>
+    </div>
+    
+    <!-- Summary & Purchase -->
+    <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
+        <section class="section-card">
+            <h3 class="text-lg font-bold mb-4">Summary</h3>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-slate-500">Distributor</span><span id="summaryProvider" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Meter Number</span><span id="summaryMeter" class="font-semibold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Account</span><span id="summaryCustomer" class="font-semibold">-</span></div>
+                <hr class="border-dashed border-slate-200 dark:border-slate-700 my-2">
+                <div class="flex justify-between items-center text-lg"><span class="font-bold">Total</span><span id="summaryAmount" class="font-bold text-2xl text-blue-600 dark:text-blue-400">₦0</span></div>
+            </div>
+        </section>
+        <div class="text-center">
+            <button id="purchaseBtn" class="btn-primary w-full max-w-sm mx-auto text-base" disabled>
+                <span>Pay Now</span>
+                <i data-lucide="loader" class="loading w-5 h-5 ml-2 hidden"></i>
+            </button>
+        </div>
+    </div>
+  </main>
+
+  <!-- Password Modal -->
+  <div id="passwordModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="section-card w-full max-w-sm" id="passwordModalContent">
+      <h2 class="text-xl font-bold mb-1 text-center">Confirm Payment</h2>
+      <p class="text-sm text-center text-slate-500 mb-6">Enter your password to authorize this payment.</p>
+      <div class="relative">
+        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+        <input type="password" id="confirmPasswordInput" placeholder="Enter your password" class="elegant-input w-full text-lg pl-12 pr-12">
+        <button type="button" id="passwordToggleBtn" class="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i data-lucide="eye" class="w-5 h-5"></i></button>
+      </div>
+      <p id="passwordError" class="text-center text-sm text-red-500 h-5 my-4"></p>
+      <div class="flex justify-center space-x-3">
+        <button id="passwordCancelBtn" class="btn-primary bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600 w-full">Cancel</button>
+        <button id="passwordConfirmBtn" class="btn-primary w-full" disabled>
+          <span class="flex items-center justify-center space-x-2">
+            <span id="passwordConfirmBtnText">Confirm</span>
+            <i data-lucide="loader" class="loading w-5 h-5 hidden" id="passwordConfirmBtnLoader"></i>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// --- GLOBAL SETUP ---
+const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const electricityProviders = [
+    { id: 'ikeja-electric', name: 'Ikeja Electric (IKEDC)', logoId: 'ikeja-electric' }, // Fix: electricity not electric
+    { id: 'eko-electric', name: 'Eko Electric (EKEDC)', logoId: 'Ikeja-Electric-Payment.PHCN.jpg' }, // Fix: electricity not electric
+    { id: 'abuja-electric', name: 'Abuja Electric (AEDC)', logoId: 'abuja-electricity-disco' }, // Fix: different name
+    { id: 'kano-electric', name: 'Kano Electric (KEDCO)', logoId: 'kano-electricity' }, // Fix: electricity not electric
+    { id: 'portharcourt-electric', name: 'Port Harcourt Electric (PHED)', logoId: 'portharcourt-electricity' }, // Fix: electricity not electric
+    { id: 'jos-electric', name: 'Jos Electric (JEDplc)', logoId: 'jos-electricity' } // Fix: electricity not electric
+];
+
+// --- MAIN APPLICATION CLASS ---
+class ElectricityPurchaseManager {
+  constructor() {
+    this.localUserData = null; this.supabaseUser = null; this.userBalance = 0;
+    this.selectedProvider = null; this.meterType = null; this.meterNumber = '';
+    this.verifiedCustomerDetails = null; this.paymentAmount = 0;
+  }
+
+  async initialize() {
+    this.applyDarkMode();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = "signin.html"; return; }
+    this.supabaseUser = user;
+    this.loadLocalUserData();
+    this.initializeUI();
+    this.setupEventListeners();
+  }
+
+  initializeUI() {
+    const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
+    document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
+    this.renderProviderCards();
+    this.loadWalletBalance();
+    lucide.createIcons();
+  }
+  
+  setupEventListeners() {
+    window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') this.applyDarkMode(); });
+    document.getElementById('providerGrid').addEventListener('click', (e) => this.handleProviderSelection(e));
+    document.querySelectorAll('.meter-type-btn').forEach(btn => btn.addEventListener('click', (e) => this.handleMeterTypeSelection(e)));
+    document.getElementById('meterNumber').addEventListener('input', (e) => {
+      this.meterNumber = e.target.value.replace(/\D/g, '');
+      document.getElementById('verifyBtn').disabled = this.meterNumber.length < 8;
+    });
+    document.getElementById('paymentAmount').addEventListener('input', (e) => {
+        this.paymentAmount = parseFloat(e.target.value) || 0;
+        this.updateSummary();
+    });
+    document.getElementById('verifyBtn').addEventListener('click', () => this.handleVerifyDetails());
+    document.getElementById('purchaseBtn').addEventListener('click', () => this.startPurchase());
+    this.setupPasswordModalListeners();
+  }
+  
+  applyDarkMode() { /* ... same as other pages ... */ }
+  loadLocalUserData() { /* ... same as other pages ... */ }
+  async loadWalletBalance() { /* ... same as other pages ... */ }
+  
+  renderProviderCards() {
+    const container = document.getElementById('providerGrid');
+    container.innerHTML = electricityProviders.map(p => `
+      <div class="provider-card p-4 flex flex-col items-center justify-center space-y-2" data-provider="${p.id}">
+        <img src="https://www.vtpass.com/resources/images/billers/${p.id}.png" class="provider-logo bg-white p-1 rounded-md" alt="${p.name}">
+        <div class="font-semibold text-sm text-center">${p.name}</div>
+      </div>
+    `).join('');
+  }
+
+  handleProviderSelection(e) {
+    const card = e.target.closest('.provider-card');
+    if (!card) return;
+    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    this.selectedProvider = card.dataset.provider;
+    document.getElementById('detailsSection').classList.remove('hidden');
+    this.resetVerificationAndAmount();
+  }
+
+  handleMeterTypeSelection(e) {
+    document.querySelectorAll('.meter-type-btn').forEach(b => b.classList.remove('selected', 'bg-blue-100', 'dark:bg-blue-900', 'border-blue-500'));
+    const btn = e.currentTarget;
+    btn.classList.add('selected', 'bg-blue-100', 'dark:bg-blue-900', 'border-blue-500');
+    this.meterType = btn.dataset.type;
+    document.getElementById('meterNumberDiv').classList.remove('hidden');
+    this.resetVerificationAndAmount(false); // don't reset meter type
+  }
+
+  async handleVerifyDetails() {
+    const verifyBtn = document.getElementById('verifyBtn');
+    const btnText = document.getElementById('verifyBtnText');
+    const spinner = document.getElementById('verifyBtnSpinner');
+    const resultDiv = document.getElementById('verificationResult');
+    const errorDiv = document.getElementById('verificationError');
+    
+    verifyBtn.disabled = true;
+    btnText.textContent = 'Verifying...';
+    spinner.classList.remove('hidden');
+    resultDiv.classList.add('hidden');
+    errorDiv.classList.add('hidden');
+
+    try {
+      const serviceID = `${this.selectedProvider}-${this.meterType}`;
+      const { data, error } = await supabase.functions.invoke('verify-meter', {
+        body: { serviceID, billersCode: this.meterNumber }
+      });
+      if (error || data.error) throw error || new Error(data.error);
+
+      this.verifiedCustomerDetails = data.customerDetails;
+      document.getElementById('customerName').textContent = this.verifiedCustomerDetails.name;
+      document.getElementById('customerAddress').textContent = this.verifiedCustomerDetails.address || 'Address not available';
+      resultDiv.classList.remove('hidden');
+      document.getElementById('amountSection').classList.remove('hidden');
+      this.updateSummary();
+
+    } catch(err) {
+      this.verifiedCustomerDetails = null;
+      errorDiv.textContent = err.message;
+      errorDiv.classList.remove('hidden');
+    } finally {
+      verifyBtn.disabled = false;
+      btnText.textContent = 'Verify Details';
+      spinner.classList.add('hidden');
+    }
+  }
+
+  updateSummary() {
+    const summarySection = document.getElementById('summarySection');
+    const btn = document.getElementById('purchaseBtn');
+    const isReady = this.verifiedCustomerDetails && this.paymentAmount >= 500;
+    summarySection.classList.toggle('hidden', !isReady);
+
+    if (isReady) {
+      document.getElementById('summaryProvider').textContent = this.selectedProvider.replace('-electric', '').toUpperCase();
+      document.getElementById('summaryMeter').textContent = this.meterNumber;
+      document.getElementById('summaryCustomer').textContent = this.verifiedCustomerDetails.name;
+      document.getElementById('summaryAmount').textContent = `₦${this.paymentAmount.toLocaleString()}`;
+      btn.disabled = false;
+    } else {
+      btn.disabled = true;
+    }
+  }
+
+  resetVerificationAndAmount(resetMeterType = true) {
+    this.verifiedCustomerDetails = null; this.paymentAmount = 0;
+    document.getElementById('verificationResult').classList.add('hidden');
+    document.getElementById('verificationError').classList.add('hidden');
+    document.getElementById('amountSection').classList.add('hidden');
+    document.getElementById('summarySection').classList.add('hidden');
+    document.getElementById('meterNumber').value = '';
+    document.getElementById('paymentAmount').value = '';
+    document.getElementById('verifyBtn').disabled = true;
+    if (resetMeterType) {
+        document.querySelectorAll('.meter-type-btn').forEach(b => b.classList.remove('selected', 'bg-blue-100', 'dark:bg-blue-900', 'border-blue-500'));
+        document.getElementById('meterNumberDiv').classList.add('hidden');
+        this.meterType = null;
+    }
+  }
+  
+  setupPasswordModalListeners() { /* ... same as other pages ... */ }
+  togglePasswordVisibility() { /* ... same as other pages ... */ }
+  showPasswordModal() { /* ... same as other pages ... */ }
+  hidePasswordModal() { /* ... same as other pages ... */ }
+
+  async startPurchase() {
+    if (this.paymentAmount > this.userBalance) {
+      Swal.fire({ icon: 'error', title: 'Insufficient Balance', text: 'You do not have enough funds for this payment.', confirmButtonColor: 'var(--color-primary)' });
+      return;
+    }
+    const result = await Swal.fire({
+      title: 'Confirm Payment',
+      html: `Pay <b>₦${this.paymentAmount.toLocaleString()}</b> for meter <b>${this.meterNumber}</b>?`,
+      icon: 'question', showCancelButton: true, confirmButtonColor: 'var(--color-primary)',
+      cancelButtonColor: '#64748B', confirmButtonText: 'Yes, Pay!', cancelButtonText: 'Cancel'
+    });
+    if (result.isConfirmed) {
+      this.showPasswordModal();
+    }
+  }
+  
+  async processPurchase(password) {
+    const btn = document.getElementById('purchaseBtn');
+    const spinner = btn.querySelector('i');
+    const passwordConfirmBtn = document.getElementById('passwordConfirmBtn');
+    const passwordConfirmBtnText = document.getElementById('passwordConfirmBtnText');
+    const passwordConfirmBtnLoader = document.getElementById('passwordConfirmBtnLoader');
+    
+    passwordConfirmBtn.disabled = true;
+    passwordConfirmBtnText.classList.add('hidden');
+    passwordConfirmBtnLoader.classList.remove('hidden');
+
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: this.supabaseUser.email,
+        password: password,
+      });
+      if (signInError) throw new Error("Invalid password. Please try again.");
+      
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      
+      const { data, error } = await supabase.functions.invoke('purchase-electricity', {
+        body: {
+          serviceID: `${this.selectedProvider}-${this.meterType}`,
+          billersCode: this.meterNumber,
+          variation_code: this.meterType,
+          amount: this.paymentAmount
+        },
+      });
+      if (error || data.error) throw error || new Error(data.error);
+      
+      this.hidePasswordModal();
+      Swal.fire({ icon: 'success', title: 'Payment Successful!', html: `Your payment of <b>₦${this.paymentAmount.toLocaleString()}</b> was successful. ${data.token ? `Your token is: <b>${data.token}</b>` : ''}`, confirmButtonColor: 'var(--color-primary)' });
+      
+      this.userBalance = data.newBalance;
+      this.loadWalletBalance();
+      this.resetVerificationAndAmount(true);
+
+    } catch (err) {
+      if (err.message.includes('Invalid password')) {
+        document.getElementById('passwordError').textContent = err.message;
+        document.getElementById('confirmPasswordInput').focus();
+      } else {
+        this.hidePasswordModal();
+        Swal.fire({ icon: 'error', title: 'Payment Failed', text: err.message, confirmButtonColor: 'var(--color-primary)' });
+      }
+    } finally {
+      btn.disabled = false;
+      spinner.classList.add('hidden');
+      passwordConfirmBtn.disabled = false;
+      passwordConfirmBtnText.classList.remove('hidden');
+      passwordConfirmBtnLoader.classList.add('hidden');
+    }
+  }
+}
+
+// Full helper function implementations for easy copy-paste
+ElectricityPurchaseManager.prototype.applyDarkMode = function() { const isDarkMode = localStorage.getItem('xt_theme') === 'dark'; document.documentElement.classList.toggle('dark', isDarkMode); };
+ElectricityPurchaseManager.prototype.loadLocalUserData = function() { try { const storedData = localStorage.getItem("userData"); if (!storedData) throw new Error("No local data"); this.localUserData = JSON.parse(storedData); } catch (error) { Swal.fire({ icon: 'error', title: 'Session Error', text: 'Please sign in again.'}).then(() => window.location.href = "signin.html"); }};
+ElectricityPurchaseManager.prototype.loadWalletBalance = async function() { try { const { data, error } = await supabase.from('user_profiles').select('balance').eq('id', this.supabaseUser.id).single(); if (error) throw error; this.userBalance = data ? parseFloat(data.balance) : 0; document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`; } catch (error) { document.getElementById('walletBalance').textContent = 'Error'; }};
+ElectricityPurchaseManager.prototype.setupPasswordModalListeners = function() { const passwordInput = document.getElementById('confirmPasswordInput'); const passwordConfirmBtn = document.getElementById('passwordConfirmBtn'); const passwordToggleBtn = document.getElementById('passwordToggleBtn'); passwordToggleBtn.addEventListener('click', () => this.togglePasswordVisibility()); passwordInput.addEventListener('input', () => { document.getElementById('passwordError').textContent = ''; passwordConfirmBtn.disabled = passwordInput.value.length < 6; }); document.getElementById('passwordCancelBtn').addEventListener('click', () => this.hidePasswordModal()); passwordConfirmBtn.addEventListener('click', () => this.processPurchase(passwordInput.value)); };
+ElectricityPurchaseManager.prototype.togglePasswordVisibility = function() { const passwordInput = document.getElementById('confirmPasswordInput'); const toggleIcon = document.querySelector('#passwordToggleBtn i'); const isPassword = passwordInput.type === 'password'; passwordInput.type = isPassword ? 'text' : 'password'; toggleIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye'); lucide.createIcons(); };
+ElectricityPurchaseManager.prototype.showPasswordModal = function() { const passwordModal = document.getElementById('passwordModal'); passwordModal.classList.add('visible'); document.getElementById('confirmPasswordInput').value = ''; document.getElementById('confirmPasswordInput').type = 'password'; document.querySelector('#passwordToggleBtn i').setAttribute('data-lucide', 'eye'); document.getElementById('passwordConfirmBtn').disabled = true; document.getElementById('confirmPasswordInput').focus(); lucide.createIcons(); };
+ElectricityPurchaseManager.prototype.hidePasswordModal = function() { document.getElementById('passwordModal').classList.remove('visible'); };
+
+document.addEventListener('DOMContentLoaded', () => {
+  const app = new ElectricityPurchaseManager();
+  app.initialize();
+});
+</script>
+</body>
+</html>
