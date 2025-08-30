@@ -7,10 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <!-- ▼▼▼ ADD SWEETALERT2 LIBRARY ▼▼▼ -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-  /* --- PROFESSIONAL DESIGN SYSTEM (UNCHANGED) --- */
+  /* --- PROFESSIONAL DESIGN SYSTEM (Complete & Unchanged) --- */
   :root {
     --color-primary: #2563EB; --color-primary-hover: #1D4ED8; --color-primary-light: #EFF6FF;
     --color-text-primary: #1E293B; --color-text-secondary: #64748B; --color-border: #E2E8F0;
@@ -32,7 +31,7 @@
   .horizontal-scroll-container::-webkit-scrollbar { display: none; }
   .provider-card { flex-shrink: 0; width: 140px; padding: 1rem; border: 2px solid var(--color-border); border-radius: 1rem; transition: all 0.2s ease-in-out; cursor:pointer; }
   .provider-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); transform: scale(1.05); }
-  .provider-logo { width: 48px; height: 48px; object-fit: contain; }
+  .provider-logo { width: 48px; height: 48px; object-fit: contain; border-radius: 0.5rem; }
   .plan-card { border: 2px solid var(--color-border); border-radius: 1rem; padding: 1rem; transition: all 0.2s ease-in-out; cursor: pointer; position: relative; }
   .plan-card.selected { border-color: var(--color-primary); background-color: var(--color-primary-light); box-shadow: var(--shadow-interactive); }
   .checkmark-icon { position: absolute; top: 8px; right: 8px; background-color: var(--color-primary); color: white; border-radius: 99px; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; }
@@ -44,7 +43,6 @@
   .btn-primary:disabled { background-color: #94A3B8; cursor: not-allowed; box-shadow: none; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .loading { animation: spin 1s linear infinite; }
-  /* --- NEW: Styles for the Password Modal --- */
   #passwordModal { display: flex; opacity: 0; visibility: hidden; transition: all 0.2s ease-in-out; }
   #passwordModal.visible { opacity: 1; visibility: visible; }
   #passwordModalContent { transform: scale(0.95); transition: all 0.2s ease-in-out; }
@@ -52,8 +50,8 @@
   </style>
 </head>
 
-<body class="min-h-screen">
-  <!-- Navigation (UNCHANGED) -->
+<body class="min-h-screen pb-24">
+  <!-- Navigation -->
   <nav class="header-nav sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
@@ -72,13 +70,14 @@
     </div>
   </nav>
 
-  <!-- Main Content (UNCHANGED) -->
   <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <!-- Provider Selection -->
     <section class="section-card">
       <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 flex items-center justify-center"><i data-lucide="tv" class="w-5 h-5"></i></div>Select Provider</h2>
       <div class="horizontal-scroll-container space-x-4"></div>
     </section>
 
+    <!-- Details Section -->
     <div id="detailsSection" class="space-y-6 hidden">
       <section class="section-card">
         <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center"><i data-lucide="contact" class="w-5 h-5"></i></div>Decoder Details</h2>
@@ -100,6 +99,7 @@
       </section>
     </div>
 
+    <!-- Plans Section -->
     <div id="plansSection" class="space-y-6 hidden">
       <section class="section-card">
         <h2 class="text-xl font-bold mb-4 flex items-center"><div class="w-8 h-8 mr-3 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 flex items-center justify-center"><i data-lucide="package" class="w-5 h-5"></i></div>Choose Bouquet</h2>
@@ -107,6 +107,7 @@
       </section>
     </div>
     
+    <!-- Summary & Purchase -->
     <div id="summarySection" class="space-y-6 sticky bottom-4 z-30 hidden">
         <section class="section-card">
             <h3 class="text-lg font-bold mb-4">Summary</h3>
@@ -128,10 +129,10 @@
     </div>
   </main>
 
-  <!-- ▼▼▼ NEW PASSWORD MODAL HTML ▼▼▼ -->
+  <!-- Password Modal -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden items-center justify-center p-4">
     <div class="section-card w-full max-w-sm" id="passwordModalContent">
-      <h2 class="text-xl font-bold mb-1 text-center">Confirm Purchase</h2>
+      <h2 class="text-xl font-bold mb-1 text-center">Confirm Subscription</h2>
       <p class="text-sm text-center text-slate-500 mb-6">Enter your password to authorize this subscription.</p>
       <div class="relative">
         <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
@@ -156,7 +157,11 @@
 const SUPABASE_URL = 'https://nzwrrahwgtisyxouplnu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d3JyYWh3Z3Rpc3l4b3VwbG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5MDk1NzAsImV4cCI6MjA3MTQ4NTU3MH0.kvc0VtfT_isXxP4i9XCzUiwOVLVl7Hni6rSXmIAaLHw';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const cableProviders = [ { id: 'dstv', name: 'DSTV' }, { id: 'gotv', name: 'GOtv' }, { id: 'startimes', name: 'Startimes' } ];
+const cableProviders = [
+    { id: 'dstv', name: 'DSTV' },
+    { id: 'gotv', name: 'GOtv' },
+    { id: 'startimes', name: 'Startimes' }
+];
 
 // --- MAIN APPLICATION CLASS ---
 class CablePurchaseManager {
@@ -254,21 +259,14 @@ class CablePurchaseManager {
     const resultDiv = document.getElementById('verificationResult');
     const errorDiv = document.getElementById('verificationError');
     
-    // Show loading state
     verifyBtn.disabled = true;
-    btnText.textContent = 'Verifying...'; // Optional: change text
+    btnText.textContent = 'Verifying...';
     spinner.classList.remove('hidden');
-    
-    // Hide previous results
     resultDiv.classList.add('hidden');
     errorDiv.classList.add('hidden');
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Authentication session expired.");
-      
       const { data, error } = await supabase.functions.invoke('verify-smartcard', {
-        headers: { 'Authorization': `Bearer ${session.access_token}` },
         body: { serviceID: this.selectedProvider, billersCode: this.smartcardNumber }
       });
       if (error || data.error) throw error || new Error(data.error);
@@ -284,13 +282,11 @@ class CablePurchaseManager {
       errorDiv.textContent = err.message;
       errorDiv.classList.remove('hidden');
     } finally {
-      // Hide loading state
       verifyBtn.disabled = false;
-      btnText.textContent = 'Verify Details'; // Restore text
+      btnText.textContent = 'Verify Details';
       spinner.classList.add('hidden');
-      lucide.createIcons();
     }
-}
+  }
 
   async loadPlans() {
     const plansContainer = document.getElementById('cablePlans');
@@ -343,6 +339,12 @@ class CablePurchaseManager {
     document.getElementById('verifyBtn').disabled = true;
   }
   
+  resetUI() {
+    this.resetVerificationAndPlans();
+    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('detailsSection').classList.add('hidden');
+  }
+
   // --- PASSWORD MODAL & PURCHASE FLOW ---
   setupPasswordModalListeners() {
     const passwordInput = document.getElementById('confirmPasswordInput');
@@ -356,6 +358,7 @@ class CablePurchaseManager {
     document.getElementById('passwordCancelBtn').addEventListener('click', () => this.hidePasswordModal());
     document.getElementById('passwordConfirmBtn').addEventListener('click', () => this.processPurchase(passwordInput.value));
   }
+
   togglePasswordVisibility() {
     const passwordInput = document.getElementById('confirmPasswordInput');
     const toggleIcon = document.querySelector('#passwordToggleBtn i');
@@ -364,6 +367,7 @@ class CablePurchaseManager {
     toggleIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
     lucide.createIcons();
   }
+
   showPasswordModal() {
     const passwordModal = document.getElementById('passwordModal');
     passwordModal.classList.add('visible');
@@ -374,6 +378,7 @@ class CablePurchaseManager {
     document.getElementById('confirmPasswordInput').focus();
     lucide.createIcons();
   }
+
   hidePasswordModal() {
     document.getElementById('passwordModal').classList.remove('visible');
   }
@@ -415,11 +420,7 @@ class CablePurchaseManager {
       btn.disabled = true;
       spinner.classList.remove('hidden');
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Authentication failed after password check.");
-
       const { data, error } = await supabase.functions.invoke('purchase-cable', {
-        headers: { 'Authorization': `Bearer ${session.access_token}` },
         body: {
           serviceID: this.selectedProvider,
           billersCode: this.smartcardNumber,
@@ -433,7 +434,7 @@ class CablePurchaseManager {
       Swal.fire({ icon: 'success', title: 'Subscription Successful!', text: `${this.selectedPlan.name} has been activated for ${this.smartcardNumber}.`, confirmButtonColor: 'var(--color-primary)' });
       
       this.userBalance = data.newBalance;
-      this.updateBalanceDisplay(this.userBalance);
+      document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
       this.resetUI();
 
     } catch (err) {
@@ -459,12 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = new CablePurchaseManager();
   app.initialize();
 });
-
-const cableProviders = [
-    { id: 'dstv', name: 'DSTV', logoId: 'dstv' },
-    { id: 'gotv', name: 'GOtv', logoId: 'gotv' },
-    { id: 'startimes', name: 'Startimes', logoId: 'startimes' }
-];
 </script>
+
 </body>
 </html>
