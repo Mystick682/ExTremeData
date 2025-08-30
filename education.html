@@ -144,19 +144,24 @@ class EducationPinManager {
     this.userBalance = 0;
     this.selectedProduct = null;
     this.quantity = 1;
-    this.products = []; // Will be fetched from VTPass
+    this.products = [];
   }
 
+  // 1. INITIALIZE THE PAGE
   async initialize() {
     this.applyDarkMode();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { window.location.href = "signin.html"; return; }
+    if (!user) {
+      window.location.href = "signin.html";
+      return;
+    }
     this.supabaseUser = user;
     this.loadLocalUserData();
-    await this.initializeUI();
+    this.initializeUI();
     this.setupEventListeners();
   }
-  
+
+  // 2. SETUP UI ELEMENTS
   async initializeUI() {
     const initials = (this.localUserData.firstName?.charAt(0) || '') + (this.localUserData.lastName?.charAt(0) || '');
     document.getElementById('userAvatar').textContent = initials.toUpperCase() || '?';
@@ -165,29 +170,52 @@ class EducationPinManager {
     lucide.createIcons();
   }
   
+  // 3. ATTACH ALL EVENT LISTENERS
   setupEventListeners() {
     window.addEventListener('storage', (e) => { if (e.key === 'xt_theme') this.applyDarkMode(); });
     document.getElementById('decreaseQtyBtn').addEventListener('click', () => this.updateQuantity(-1));
     document.getElementById('increaseQtyBtn').addEventListener('click', () => this.updateQuantity(1));
-    document.getElementById('quantity').addEventListener('input', (e) => this.updateQuantity(0, e.target.value));
+    document.getElementById('quantity').addEventListener('change', (e) => this.updateQuantity(0, e.target.value)); // Use 'change' for better UX
     document.getElementById('purchaseBtn').addEventListener('click', () => this.startPurchase());
     this.setupPasswordModalListeners();
   }
 
-  applyDarkMode() { /* ... same as other pages ... */ }
-  loadLocalUserData() { /* ... same as other pages ... */ }
-  async loadWalletBalance() { /* ... same as other pages ... */ }
+  // --- UI HELPER FUNCTIONS ---
+  applyDarkMode() {
+    const isDarkMode = localStorage.getItem('xt_theme') === 'dark';
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }
+
+  loadLocalUserData() {
+    try {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) this.localUserData = JSON.parse(storedData);
+      else throw new Error("No user data found.");
+    } catch(e) {
+      Swal.fire({ icon: 'error', title: 'Session Error', text: 'Please sign in again.'})
+        .then(() => window.location.href = "signin.html");
+    }
+  }
+
+  async loadWalletBalance() {
+    try {
+      const { data, error } = await supabase.from('user_profiles').select('balance').eq('id', this.supabaseUser.id).single();
+      if (error) throw error;
+      this.userBalance = data ? parseFloat(data.balance) : 0;
+      document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    } catch (error) {
+      document.getElementById('walletBalance').textContent = 'Error';
+    }
+  }
   
   async loadProducts() {
     const productContainer = document.getElementById('productSelection');
     productContainer.innerHTML = `<div class="col-span-full text-center p-4 text-slate-500">Loading products...</div>`;
     try {
-      // We will use our reusable 'get-service-variations' function
       const { data, error } = await supabase.functions.invoke('get-service-variations', {
-        body: { serviceID: 'waec' } // The VTPass serviceID for WAEC is 'waec'
+        body: { serviceID: 'waec' }
       });
       if (error || data.error) throw error || new Error(data.error);
-
       if (data.plans) {
         this.products = data.plans;
         productContainer.innerHTML = this.products.map(product => `
@@ -197,7 +225,6 @@ class EducationPinManager {
             <div class="font-bold text-lg text-blue-600 dark:text-blue-400 mt-1">₦${product.price.toLocaleString()}</div>
           </div>
         `).join('');
-        
         productContainer.querySelectorAll('.product-card').forEach(card => 
           card.addEventListener('click', (e) => this.handleProductSelection(e.currentTarget))
         );
@@ -220,14 +247,10 @@ class EducationPinManager {
 
   updateQuantity(change, value = null) {
     let currentQty = parseInt(document.getElementById('quantity').value);
-    if (value !== null) {
-      currentQty = parseInt(value) || 1;
-    } else {
-      currentQty += change;
-    }
+    if (value !== null) { currentQty = parseInt(value) || 1; } 
+    else { currentQty += change; }
     if (currentQty < 1) currentQty = 1;
-    if (currentQty > 100) currentQty = 100; // Set a max limit
-    
+    if (currentQty > 100) currentQty = 100;
     document.getElementById('quantity').value = currentQty;
     this.quantity = currentQty;
     this.updateSummary();
@@ -238,7 +261,6 @@ class EducationPinManager {
     const btn = document.getElementById('purchaseBtn');
     const isReady = this.selectedProduct && this.quantity > 0;
     summarySection.classList.toggle('hidden', !isReady);
-
     if (isReady) {
       const total = this.selectedProduct.price * this.quantity;
       document.getElementById('summaryProduct').textContent = this.selectedProduct.name;
@@ -251,11 +273,35 @@ class EducationPinManager {
     }
   }
 
-  // --- PASSWORD MODAL & PURCHASE FLOW (Reused from other pages) ---
-  setupPasswordModalListeners() { /* ... same as other pages ... */ }
-  togglePasswordVisibility() { /* ... same as other pages ... */ }
-  showPasswordModal() { /* ... same as other pages ... */ }
-  hidePasswordModal() { /* ... same as other pages ... */ }
+  // --- PASSWORD MODAL & PURCHASE FLOW ---
+  setupPasswordModalListeners() {
+    const passwordInput = document.getElementById('confirmPasswordInput');
+    const passwordConfirmBtn = document.getElementById('passwordConfirmBtn');
+    const passwordToggleBtn = document.getElementById('passwordToggleBtn');
+    passwordToggleBtn.addEventListener('click', () => this.togglePasswordVisibility());
+    passwordInput.addEventListener('input', () => { document.getElementById('passwordError').textContent = ''; passwordConfirmBtn.disabled = passwordInput.value.length < 6; });
+    document.getElementById('passwordCancelBtn').addEventListener('click', () => this.hidePasswordModal());
+    document.getElementById('passwordConfirmBtn').addEventListener('click', () => this.processPurchase(passwordInput.value));
+  }
+  togglePasswordVisibility() {
+    const passwordInput = document.getElementById('confirmPasswordInput');
+    const toggleIcon = document.querySelector('#passwordToggleBtn i');
+    const isPassword = passwordInput.type === 'password';
+    passwordInput.type = isPassword ? 'text' : 'password';
+    toggleIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+    lucide.createIcons();
+  }
+  showPasswordModal() {
+    const passwordModal = document.getElementById('passwordModal');
+    passwordModal.classList.add('visible');
+    document.getElementById('confirmPasswordInput').value = '';
+    document.getElementById('confirmPasswordInput').type = 'password';
+    document.querySelector('#passwordToggleBtn i').setAttribute('data-lucide', 'eye');
+    document.getElementById('passwordConfirmBtn').disabled = true;
+    document.getElementById('confirmPasswordInput').focus();
+    lucide.createIcons();
+  }
+  hidePasswordModal() { document.getElementById('passwordModal').classList.remove('visible'); }
 
   async startPurchase() {
     const totalCost = this.selectedProduct.price * this.quantity;
@@ -269,9 +315,7 @@ class EducationPinManager {
       icon: 'question', showCancelButton: true, confirmButtonColor: 'var(--color-primary)',
       cancelButtonColor: '#64748B', confirmButtonText: 'Yes, Buy Now!', cancelButtonText: 'Cancel'
     });
-    if (result.isConfirmed) {
-      this.showPasswordModal();
-    }
+    if (result.isConfirmed) { this.showPasswordModal(); }
   }
   
   async processPurchase(password) {
@@ -308,20 +352,18 @@ class EducationPinManager {
       Swal.fire({ 
         icon: 'success', 
         title: 'Purchase Successful!', 
-        html: `Your WAEC PIN(s) have been purchased successfully. They will be delivered shortly.<br><br><b>Transaction ID:</b><div class="mt-2 p-2 bg-slate-100 dark:bg-slate-700 rounded-md text-sm">${data.transactionId}</div>`, 
+        html: `Your WAEC PIN(s) have been purchased successfully.<br><br><b>Transaction ID:</b><div class="mt-2 p-2 bg-slate-100 dark:bg-slate-700 rounded-md text-sm">${data.transactionId}</div>`, 
         confirmButtonColor: 'var(--color-primary)' 
       });
       
       this.userBalance = data.newBalance;
-      this.loadWalletBalance();
-      // Reset the UI after purchase
+      document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
       document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
       document.getElementById('detailsSection').classList.add('hidden');
       document.getElementById('summarySection').classList.add('hidden');
       this.selectedProduct = null;
       this.quantity = 1;
       document.getElementById('quantity').value = 1;
-
 
     } catch (err) {
       if (err.message.includes('Invalid password')) {
@@ -342,18 +384,12 @@ class EducationPinManager {
   }
 }
 
-// Full helper function implementations for easy copy-paste
-EducationPinManager.prototype.applyDarkMode = function() { const isDarkMode = localStorage.getItem('xt_theme') === 'dark'; document.documentElement.classList.toggle('dark', isDarkMode); };
-EducationPinManager.prototype.loadLocalUserData = function() { try { const storedData = localStorage.getItem("userData"); if (!storedData) throw new Error("No local data"); this.localUserData = JSON.parse(storedData); } catch (error) { Swal.fire({ icon: 'error', title: 'Session Error', text: 'Please sign in again.'}).then(() => window.location.href = "signin.html"); }};
-EducationPinManager.prototype.loadWalletBalance = async function() { try { const { data, error } = await supabase.from('user_profiles').select('balance').eq('id', this.supabaseUser.id).single(); if (error) throw error; this.userBalance = data ? parseFloat(data.balance) : 0; document.getElementById('walletBalance').textContent = `₦${this.userBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`; } catch (error) { document.getElementById('walletBalance').textContent = 'Error'; }};
-EducationPinManager.prototype.setupPasswordModalListeners = function() { const passwordInput = document.getElementById('confirmPasswordInput'); const passwordConfirmBtn = document.getElementById('passwordConfirmBtn'); const passwordToggleBtn = document.getElementById('passwordToggleBtn'); passwordToggleBtn.addEventListener('click', () => this.togglePasswordVisibility()); passwordInput.addEventListener('input', () => { document.getElementById('passwordError').textContent = ''; passwordConfirmBtn.disabled = passwordInput.value.length < 6; }); document.getElementById('passwordCancelBtn').addEventListener('click', () => this.hidePasswordModal()); passwordConfirmBtn.addEventListener('click', () => this.processPurchase(passwordInput.value)); };
-EducationPinManager.prototype.togglePasswordVisibility = function() { const passwordInput = document.getElementById('confirmPasswordInput'); const toggleIcon = document.querySelector('#passwordToggleBtn i'); const isPassword = passwordInput.type === 'password'; passwordInput.type = isPassword ? 'text' : 'password'; toggleIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye'); lucide.createIcons(); };
-EducationPinManager.prototype.showPasswordModal = function() { const passwordModal = document.getElementById('passwordModal'); passwordModal.classList.add('visible'); document.getElementById('confirmPasswordInput').value = ''; document.getElementById('confirmPasswordInput').type = 'password'; document.querySelector('#passwordToggleBtn i').setAttribute('data-lucide', 'eye'); document.getElementById('passwordConfirmBtn').disabled = true; document.getElementById('confirmPasswordInput').focus(); lucide.createIcons(); };
-EducationPinManager.prototype.hidePasswordModal = function() { document.getElementById('passwordModal').classList.remove('visible'); };
-
 document.addEventListener('DOMContentLoaded', () => {
   const app = new EducationPinManager();
+  app.initialize();
 });
 </script>
+</body>
+</html>
 </body>
 </html>
